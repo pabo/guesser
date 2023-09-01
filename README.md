@@ -12,3 +12,4 @@ You can play here: https://pabo.github.io/guesser/
 - reset
 - clean, organize
 - reveal more letters so there are <X words remaining
+- highlight fixed letters

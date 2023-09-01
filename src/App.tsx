@@ -7,12 +7,14 @@ import {
   WORD_LENGTH,
   validWordsAtom,
   patternArrayAtom,
-  currentGuessLoadableAtom,
   guessIsGoodAtom,
   guessIsBadAtom,
+  wordsAtom,
 } from "./store";
-import { useEffect, useRef } from "react";
+import { startTransition, useEffect, useRef } from "react";
 import githubImgUrl from "./assets/github-mark.png";
+import { Guess } from "./Guess";
+import { Word } from "./WOrd";
 
 export const App = () => {
   const [patternArray] = useAtom(patternArrayAtom);
@@ -23,16 +25,11 @@ export const App = () => {
   const [guessIsBad, setGuessIsBad] = useAtom(guessIsBadAtom);
   const [validWords] = useAtom(validWordsAtom);
   const [, setFoundWords] = useAtom(foundWordsAtom);
-  const [wordsLoadable] = useAtom(loadableAtom);
 
   const ref = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     ref.current?.focus();
   });
-
-  if (wordsLoadable.state === "loading") return <div>Loading...</div>;
-  if (wordsLoadable.state === "hasError") return <div>Error...</div>;
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     // no typing while animation is happening
@@ -45,21 +42,24 @@ export const App = () => {
 
     //TODO: should backspace back over the pattern?
     if (e.key === "Backspace") {
-      setCurrentGuessArray((guess) => guess.slice(0, -1));
+      startTransition(() => {
+        setCurrentGuessArray((guess) => guess.slice(0, -1));
+      });
       return;
     }
 
-    if (allowedKeys.includes(e.key)) {
-      const nextPatternCharacter = patternArray[currentGuessArray.length];
-      if (nextPatternCharacter !== "." && nextPatternCharacter !== e.key) {
-        // if we're attemting to "overwrite" a pattern'ed letter, assume they skipped typing it
-        setCurrentGuessArray((guess) => [...guess, nextPatternCharacter]);
+    startTransition(() => {
+      if (allowedKeys.includes(e.key)) {
+        const nextPatternCharacter = patternArray[currentGuessArray.length];
+        if (nextPatternCharacter !== "." && nextPatternCharacter !== e.key) {
+          // if we're attemting to "overwrite" a pattern'ed letter, assume they skipped typing it
+          setCurrentGuessArray((guess) => [...guess, nextPatternCharacter]);
+        }
+
+        setCurrentGuessArray((guess) => [...guess, e.key]);
       }
+    });
 
-      setCurrentGuessArray((guess) => [...guess, e.key]);
-    }
-
-    console.log("fuccent geuss array", currentGuessArray);
     // does this guess finish a word?
     if (currentGuessArray.length >= WORD_LENGTH - 1) {
       const fullGuess = [...currentGuessArray, e.key].join("");
@@ -96,46 +96,6 @@ export const App = () => {
           <Word key={index} word={word} />
         ))}
       </div>
-    </div>
-  );
-};
-
-const Guess = () => {
-  const [guessIsGood, setGuessIsGood] = useAtom(guessIsGoodAtom);
-  const [guessIsBad, setGuessIsBad] = useAtom(guessIsBadAtom);
-  const [currentGuessLoadable] = useAtom(currentGuessLoadableAtom);
-
-  if (currentGuessLoadable.state === "loading") return <div>Loading...</div>;
-  if (currentGuessLoadable.state === "hasError") return <div>Error...</div>;
-
-  return (
-    <h1
-      className={`guess ${guessIsGood ? "good-guess" : ""} ${
-        guessIsBad ? "bad-guess" : ""
-      }`}
-      onAnimationEnd={() => {
-        setGuessIsGood(false);
-        setGuessIsBad(false);
-      }}
-    >
-      {currentGuessLoadable.data}
-    </h1>
-  );
-};
-
-type WordProps = {
-  word: string;
-};
-
-const Word: React.FC<WordProps> = ({ word }) => {
-  const [foundWords] = useAtom(foundWordsAtom);
-  const isFound = foundWords.includes(word);
-
-  const placeholder = "xxxxxxx";
-
-  return (
-    <div className={`word ${isFound ? "" : "faded"}`}>
-      {isFound ? word : placeholder}{" "}
     </div>
   );
 };

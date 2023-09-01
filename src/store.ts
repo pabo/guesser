@@ -44,11 +44,16 @@ export const choosePattern = (words: string[], seed?: string) => {
 };
 
 // async atoms
+
+// main fetch, which is async. It is this async-ness that trickles down
+// into all the derived atoms. If we made this a bundled import instead, there
+// would be no async. I'm leaving it async for now to get more familiar with async atoms
 export const wordsAtom = atom(async () => {
   const response = await fetch(wordsUrl);
   return (await response.text()).split("\n");
 });
 
+// loadables unwrap async atoms, instead of needing to use Suspense
 export const loadableAtom = loadable(wordsAtom);
 
 export const patternAtom = atom(async (get) =>
@@ -99,17 +104,12 @@ export const currentGuessDisplayAtom = atom(async (get) => {
 
 export const currentGuessLoadableAtom = loadable(currentGuessDisplayAtom);
 
-//read / write example
-// const readWriteAtom = atom(
-//     (get) => get(priceAtom) * 2,
-//     (get, set, newPrice) => {
-//       set(priceAtom, newPrice / 2)
-//       // you can set as many atoms as you want at the same time
-//     }
-//   )
 
 // sync atoms
 export const foundWordsAtom = atomWithStorage<string[]>("foundWords", []);
 export const currentGuessArrayAtom = atom<string[]>([]);
 export const guessIsGoodAtom = atom(false);
 export const guessIsBadAtom = atom(false);
+
+// const date = new Date();
+// export const seedAtom = atomWithStorage("seed", `${date.getFullYear()}${date.getMonth()}${date.getDate()}`)
