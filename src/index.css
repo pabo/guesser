@@ -67,3 +67,65 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.main:focus {
+  outline-width: 0;
+}
+
+.hidden {
+  opacity: 0.15;
+}
+
+.guess.good-guess {
+  animation: good-guess 0.3s;
+}
+
+@keyframes good-guess {
+  0% {
+    transform: translateY(0px);
+    color: green;
+  }
+  25% {
+    transform: translateY(3px);
+    color: green;
+  }
+  50% {
+    transform: translateY(-3px);
+    color: green;
+  }
+  75% {
+    transform: translateY(3px);
+    color: green;
+  }
+  100% {
+    transform: translateY(0);
+    color: green;
+  }
+}
+
+.guess.bad-guess {
+  animation: bad-guess 0.3s;
+}
+
+@keyframes bad-guess {
+  0% {
+    transform: translateX(0px);
+    color: red;
+  }
+  25% {
+    transform: translateX(3px);
+    color: red;
+  }
+  50% {
+    transform: translateX(-3px);
+    color: red;
+  }
+  75% {
+    transform: translateX(3px);
+    color: red;
+  }
+  100% {
+    transform: translateX(0);
+    color: red;
+  }
+}
