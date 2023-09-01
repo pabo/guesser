@@ -79,13 +79,13 @@ export const App = () => {
   };
 
   return (
-    <div>
+    <div className="page" ref={ref} tabIndex={0} onKeyDown={handleKeyDown}>
       <div className="links">
         <a href="https://github.com/pabo/guesser">
           <img src={githubImgUrl} height="30px" />
         </a>
       </div>
-      <div className="main" ref={ref} tabIndex={0} onKeyDown={handleKeyDown}>
+      <div className="main">
         <div className="description">
           Find as many words as you can that fit the pattern. Hi mom!
         </div>

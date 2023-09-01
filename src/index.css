@@ -68,7 +68,7 @@ button:focus-visible {
   }
 }
 
-.main:focus {
+.page:focus {
   outline-width: 0;
 }
 
@@ -150,4 +150,8 @@ button:focus-visible {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+}
+
+.page {
+  height: 100%;
 }

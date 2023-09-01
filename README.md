@@ -11,3 +11,4 @@ You can play here: https://pabo.github.io/guesser/
 - daily vs random
 - reset
 - clean, organize
+- reveal more letters so there are <X words remaining
