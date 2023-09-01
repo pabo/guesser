@@ -12,6 +12,7 @@ import {
   guessIsBadAtom,
 } from "./store";
 import { Suspense, useEffect, useRef } from "react";
+import githubImgUrl from "./assets/github-mark.png";
 
 export const App = () => {
   const [patternArray] = useAtom(patternArrayAtom);
@@ -79,6 +80,11 @@ export const App = () => {
 
   return (
     <>
+      <div className="links">
+        <a href="https://github.com/pabo/guesser">
+          <img src={githubImgUrl} height="30px" />
+        </a>
+      </div>
       <div className="main" ref={ref} tabIndex={0} onKeyDown={handleKeyDown}>
         <Guess />
       </div>
