@@ -4,6 +4,7 @@ import {
   guessIsBadAtom,
   guessArrayAtom,
   combinedGuessAndPatternAtom,
+  // guessIsRepeatAtom,
 } from "./store";
 import { Suspense } from "react";
 import classNames from "classnames";
@@ -11,6 +12,7 @@ import classNames from "classnames";
 export const Guess = () => {
   const [guessIsGood, setGuessIsGood] = useAtom(guessIsGoodAtom);
   const [guessIsBad, setGuessIsBad] = useAtom(guessIsBadAtom);
+  // const [guessIsRepeat] = useAtom(guessIsRepeatAtom);
   const [combinedGuessAndPattern] = useAtom(combinedGuessAndPatternAtom);
 
   return (
@@ -21,6 +23,7 @@ export const Guess = () => {
           guess: true,
           "good-guess": guessIsGood,
           "bad-guess": guessIsBad,
+          // "repeat-guess": guessIsRepeat,
         })}
         onAnimationEnd={() => {
           setGuessIsGood(false);

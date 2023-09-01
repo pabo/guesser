@@ -90,6 +90,7 @@ export const guessArrayAtom = atomWithStorage<(string | undefined)[]>(
 export const foundWordsAtom = atomWithStorage<string[]>("foundWords", []);
 export const guessIsGoodAtom = atom(false);
 export const guessIsBadAtom = atom(false);
+export const guessIsRepeatAtom = atom(false);
 
 // combines arrays by masking the second onto the first. nullish values in earlier arrays are filled with the values
 // from later arrays

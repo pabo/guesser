@@ -9,6 +9,7 @@ import {
   guessIsGoodAtom,
   guessIsBadAtom,
   meldArrays,
+  guessIsRepeatAtom,
 } from "./store";
 import { startTransition, useEffect, useRef } from "react";
 import githubImgUrl from "./assets/github-mark.png";
@@ -21,8 +22,9 @@ export const App = () => {
   const [guessArray, setGuessArray] = useAtom(guessArrayAtom);
   const [guessIsGood, setGuessIsGood] = useAtom(guessIsGoodAtom);
   const [guessIsBad, setGuessIsBad] = useAtom(guessIsBadAtom);
+  const [, setGuessIsRepeat] = useAtom(guessIsRepeatAtom);
   const [validWords] = useAtom(validWordsAtom);
-  const [, setFoundWords] = useAtom(foundWordsAtom);
+  const [foundWords, setFoundWords] = useAtom(foundWordsAtom);
 
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -79,6 +81,12 @@ export const App = () => {
 
         const nextGuessArray = [...guessArray, ...lettersToAdd];
         const potentialWord = meldArrays(patternArray, nextGuessArray).join("");
+
+        // is it repeat?
+        if (foundWords.includes(potentialWord)) {
+          setGuessIsRepeat(true);
+          return;
+        }
 
         // is it valid?
         if (validWords.includes(potentialWord)) {
