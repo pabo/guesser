@@ -5,8 +5,12 @@ import seedrandom from "seedrandom";
 
 export const LETTERS_TO_REVEAL = 2;
 export const WORD_LENGTH = 7;
-export const NUMBER_OF_VALID_WORDS = 45;
-// const TESTING_SEED = "asaaaaaaaaaaaaaaaadfsadfasdf";
+export const MAX_NUMBER_OF_VALID_WORDS = 45;
+
+// We pick one target word at random, then create a pattern that matches the target word
+// and several others. We give the player the pattern so that they can guess all the matching words
+
+// const TESTING_SEED = "asaaaaaaaaadfsadfasdf";
 const TESTING_SEED = undefined;
 
 const createRegex = (word: string, indexesToReveal: number[]) => {
@@ -20,8 +24,7 @@ const createRegex = (word: string, indexesToReveal: number[]) => {
   const regex = new RegExp(patternLetters.join(""));
 
   return regex;
-
-}
+};
 
 // choose a word from a seed, or the daily word
 export const choosePattern = (words: string[], seed?: string) => {
@@ -37,27 +40,23 @@ export const choosePattern = (words: string[], seed?: string) => {
   let regex: RegExp;
 
   do {
-    console.log("trying for an index...")
     let candidate;
 
     do {
-      candidate = Math.floor(rng() * word.length -1) + 1;
+      candidate = Math.floor(rng() * word.length - 1) + 1;
     } while (candidate === undefined || indexesToReveal.includes(candidate));
 
     indexesToReveal.push(candidate);
-    console.log("pushed new index", indexesToReveal)
 
     regex = createRegex(word, indexesToReveal);
-
-    console.log("regex is ", regex.source)
-    console.log("valid words are", words.filter(word => regex.exec(word)));
-
-  } while (words.filter(word => regex.exec(word)).length > NUMBER_OF_VALID_WORDS)
+  } while (
+    words.filter((word) => regex.exec(word)).length > MAX_NUMBER_OF_VALID_WORDS
+  );
 
   return createRegex(word, indexesToReveal);
 };
 
-// async atoms
+// atoms
 
 // main fetch, which is async. It is this async-ness that trickles down
 // into all the derived atoms. If we made this a bundled import instead, there
@@ -67,19 +66,9 @@ export const wordsAtom = atom(async () => {
   return (await response.text()).split("\n");
 });
 
-export const patternAtom = atom(async (get) =>
-  choosePattern(await get(wordsAtom), TESTING_SEED)
-);
-
+export const patternAtom = atom(async (get) => choosePattern(await get(wordsAtom), TESTING_SEED));
 export const patternArrayAtom = atom(async (get) => {
   return (await get(patternAtom)).source.split("");
-});
-
-export const patternDisplayAtom = atom(async (get) => {
-  return (await get(patternAtom)).source
-    .replaceAll(".", "_")
-    .split("")
-    .join(" ");
 });
 
 export const validWordsAtom = atom(async (get) => {
@@ -89,33 +78,9 @@ export const validWordsAtom = atom(async (get) => {
   return words.filter((word) => pattern.exec(word));
 });
 
-export const currentGuessDisplayAtom = atom(async (get) => {
-  const currentGuess = get(currentGuessArrayAtom);
-  const pattern = await get(patternAtom);
-
-  const rv = pattern.source
-    .split("")
-    .map((p, index) => {
-      if (p !== ".") {
-        // a pattern letter is set
-        return p;
-      }
-
-      if (currentGuess[index]) {
-        return currentGuess[index];
-      }
-
-      return "_";
-    })
-    .join(" ");
-
-  console.log("returning ", rv);
-  return rv;
-});
-
-// sync atoms
+// game progress
+export const guessArrayAtom = atomWithStorage<string[]>("guessArray", []);
 export const foundWordsAtom = atomWithStorage<string[]>("foundWords", []);
-export const currentGuessArrayAtom = atom<string[]>([]);
 export const guessIsGoodAtom = atom(false);
 export const guessIsBadAtom = atom(false);
 

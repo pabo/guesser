@@ -215,3 +215,12 @@ button:focus-visible {
 .one-and-a-half-key {
   flex: 1.5;
 }
+
+.guess-letter {
+  padding: 5px;
+  /* border: 1px solid black; */
+}
+
+.guess-next-letter {
+  background-color: green;
+}
