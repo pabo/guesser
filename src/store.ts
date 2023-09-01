@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import { atomWithStorage, loadable } from "jotai/utils";
+import { atomWithStorage } from "jotai/utils";
 import wordsUrl from "../wordlists/enable7.txt";
 import seedrandom from "seedrandom";
 
@@ -53,9 +53,6 @@ export const wordsAtom = atom(async () => {
   return (await response.text()).split("\n");
 });
 
-// loadables unwrap async atoms, instead of needing to use Suspense
-export const loadableAtom = loadable(wordsAtom);
-
 export const patternAtom = atom(async (get) =>
   choosePattern(await get(wordsAtom), TESTING_SEED)
 );
@@ -101,9 +98,6 @@ export const currentGuessDisplayAtom = atom(async (get) => {
   console.log("returning ", rv);
   return rv;
 });
-
-export const currentGuessLoadableAtom = loadable(currentGuessDisplayAtom);
-
 
 // sync atoms
 export const foundWordsAtom = atomWithStorage<string[]>("foundWords", []);
