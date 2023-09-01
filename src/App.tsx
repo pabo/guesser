@@ -9,7 +9,7 @@ import {
   guessIsGoodAtom,
   guessIsBadAtom,
 } from "./store";
-import { startTransition } from "react";
+import { startTransition, useEffect, useRef } from "react";
 import githubImgUrl from "./assets/github-mark.png";
 import { Guess } from "./Guess";
 import { Word } from "./Word";
@@ -22,6 +22,11 @@ export const App = () => {
   const [guessIsBad, setGuessIsBad] = useAtom(guessIsBadAtom);
   const [validWords] = useAtom(validWordsAtom);
   const [, setFoundWords] = useAtom(foundWordsAtom);
+
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    ref.current?.focus();
+  }, []);
 
   type EventLikeObject = {
     key: string;
@@ -84,7 +89,7 @@ export const App = () => {
   };
 
   return (
-    <div className="page" tabIndex={0} onKeyDown={handleKeyDown}>
+    <div className="page" ref={ref} tabIndex={0} onKeyDown={handleKeyDown}>
       <div className="links">
         <a href="https://github.com/pabo/guesser">
           <img src={githubImgUrl} height="30px" />
