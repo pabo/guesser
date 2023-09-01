@@ -2,8 +2,8 @@ import { useAtom } from "jotai";
 import {
   guessIsGoodAtom,
   guessIsBadAtom,
-  patternArrayAtom,
   guessArrayAtom,
+  combinedGuessAndPatternAtom,
 } from "./store";
 import { Suspense } from "react";
 import classNames from "classnames";
@@ -11,7 +11,7 @@ import classNames from "classnames";
 export const Guess = () => {
   const [guessIsGood, setGuessIsGood] = useAtom(guessIsGoodAtom);
   const [guessIsBad, setGuessIsBad] = useAtom(guessIsBadAtom);
-  const [patternArray] = useAtom(patternArrayAtom);
+  const [combinedGuessAndPattern] = useAtom(combinedGuessAndPatternAtom);
 
   return (
     <Suspense fallback={"fallback"}>
@@ -27,10 +27,8 @@ export const Guess = () => {
           setGuessIsBad(false);
         }}
       >
-        {patternArray.map((letter: string, index: number) => {
-          return (
-            <GuessLetter key={index} patternLetter={letter} index={index} />
-          );
+        {combinedGuessAndPattern.map((letter: string, index: number) => {
+          return <GuessLetter key={index} letter={letter} index={index} />;
         })}
       </h2>
     </Suspense>
@@ -38,16 +36,12 @@ export const Guess = () => {
 };
 
 type GuessLetterProps = {
-  patternLetter: string;
+  letter: string;
   index: number;
 };
 
-export const GuessLetter: React.FC<GuessLetterProps> = ({
-  patternLetter,
-  index,
-}) => {
+export const GuessLetter: React.FC<GuessLetterProps> = ({ letter, index }) => {
   const [guessArray] = useAtom(guessArrayAtom);
-  const guessLetter = guessArray[index];
 
   return (
     <div
@@ -56,11 +50,7 @@ export const GuessLetter: React.FC<GuessLetterProps> = ({
         "guess-next-letter": guessArray.length === index,
       })}
     >
-      {patternLetter === "."
-        ? guessLetter
-          ? guessLetter
-          : patternLetter
-        : patternLetter}
+      {letter || "\u00A0" /* &nbsp; */}
     </div>
   );
 };

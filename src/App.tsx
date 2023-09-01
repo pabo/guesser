@@ -8,6 +8,8 @@ import {
   patternArrayAtom,
   guessIsGoodAtom,
   guessIsBadAtom,
+  combinedGuessAndPatternAtom,
+  meldArrays,
 } from "./store";
 import { startTransition, useEffect, useRef } from "react";
 import githubImgUrl from "./assets/github-mark.png";
@@ -41,24 +43,26 @@ export const App = () => {
     // TODO: event.keycode is deprecated. can key or code do a range?
     const allowedKeys = "abcdefghijklmnopqrstuvwxyz".split("");
 
-    //TODO: should backspace back over the pattern?
+    // remove the last guessed letter
     if (e.key === "Backspace") {
+      const lastGuessIndex = guessArray.findLastIndex((x) => x !== undefined);
+
       startTransition(() => {
-        setGuessArray((guess) => guess.slice(0, -1));
+        setGuessArray((guess) => guess.slice(0, lastGuessIndex));
       });
       return;
     }
 
     if (allowedKeys.includes(e.key)) {
       // add the typed letter to the guess
-      const lettersToAdd = [e.key];
+      const lettersToAdd: (string | undefined)[] = [e.key];
 
-      // also add pattern characters until you get to the next "."
+      // also add pattern characters until you get to the next undefined
       let index = guessArray.length + 1;
       let nextPatternCharacter = patternArray[index];
 
-      while (index < WORD_LENGTH && nextPatternCharacter !== ".") {
-        lettersToAdd.push(nextPatternCharacter);
+      while (index < WORD_LENGTH && nextPatternCharacter !== undefined) {
+        lettersToAdd.push(undefined);
         nextPatternCharacter = patternArray[++index];
       }
 
@@ -70,15 +74,17 @@ export const App = () => {
 
       // does this guess finish a word?
       if (guessArray.length + lettersToAdd.length >= WORD_LENGTH) {
-        // give time for animation to complete, and then
+        // give time for animation to complete, and then reset the guess input
         // TODO: should this hook into onanimationend instead?
         setTimeout(() => setGuessArray([]), 300);
 
-        const fullGuess = [...guessArray, ...lettersToAdd].join("");
+        const nextGuessArray = [...guessArray, ...lettersToAdd];
+        const potentialWord = meldArrays(patternArray, nextGuessArray).join("");
+
         // is it valid?
-        if (validWords.includes(fullGuess)) {
+        if (validWords.includes(potentialWord)) {
           setGuessIsGood(true);
-          setFoundWords((words) => [...words, fullGuess]);
+          setFoundWords((words) => [...words, potentialWord]);
           return;
         }
 

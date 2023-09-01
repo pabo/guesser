@@ -66,9 +66,13 @@ export const wordsAtom = atom(async () => {
   return (await response.text()).split("\n");
 });
 
-export const patternAtom = atom(async (get) => choosePattern(await get(wordsAtom), TESTING_SEED));
+export const patternAtom = atom(async (get) =>
+  choosePattern(await get(wordsAtom), TESTING_SEED)
+);
 export const patternArrayAtom = atom(async (get) => {
-  return (await get(patternAtom)).source.split("");
+  return (await get(patternAtom)).source
+    .split("")
+    .map((x) => (x === "." ? undefined : x));
 });
 
 export const validWordsAtom = atom(async (get) => {
@@ -79,10 +83,30 @@ export const validWordsAtom = atom(async (get) => {
 });
 
 // game progress
-export const guessArrayAtom = atomWithStorage<string[]>("guessArray", []);
+export const guessArrayAtom = atomWithStorage<(string | undefined)[]>("guessArray", []);
 export const foundWordsAtom = atomWithStorage<string[]>("foundWords", []);
 export const guessIsGoodAtom = atom(false);
 export const guessIsBadAtom = atom(false);
+
+// combines arrays by masking the second onto the first. nullish values in earlier arrays are filled with the values
+// from later arrays
+//
+// result array will have same length as first array.
+export const meldArrays = (array1: unknown[], array2: unknown[]) => {
+  return array1.map((value1, index) => {
+    const value2 = array2[index];
+
+    return value1 ?? value2;
+  });
+
+}
+
+export const combinedGuessAndPatternAtom = atom(async (get) => {
+  const patternArray = await get(patternArrayAtom);
+  const guessArray = get(guessArrayAtom);
+
+  return meldArrays(patternArray, guessArray);
+});
 
 // const date = new Date();
 // export const seedAtom = atomWithStorage("seed", `${date.getFullYear()}${date.getMonth()}${date.getDate()}`)
