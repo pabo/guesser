@@ -11,19 +11,26 @@ export const Guess = () => {
   const [guessIsBad, setGuessIsBad] = useAtom(guessIsBadAtom);
   const [currentGuessDisplay] = useAtom(currentGuessDisplayAtom);
 
+  const handleKeyDown = (e: React.SyntheticEvent) => {
+    // e.preventDefault();
+
+    console.log(e);
+  };
+
   return (
     <Suspense fallback={"fallback"}>
-      <h1
+      <h2
         className={`guess ${guessIsGood ? "good-guess" : ""} ${
           guessIsBad ? "bad-guess" : ""
         }`}
+        onChange={handleKeyDown}
         onAnimationEnd={() => {
           setGuessIsGood(false);
           setGuessIsBad(false);
         }}
       >
         {currentGuessDisplay}
-      </h1>
+      </h2>
     </Suspense>
   );
 };

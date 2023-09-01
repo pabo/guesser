@@ -85,6 +85,10 @@ button:focus-visible {
   opacity: 0.15;
 }
 
+.guess {
+  /* width: 100%; */
+}
+
 .guess.good-guess {
   animation: good-guess 0.3s;
 }
@@ -152,6 +156,62 @@ button:focus-visible {
   justify-content: space-between;
 }
 
+.row {
+  flex-direction: row;
+}
+
 .page {
   height: 100%;
+}
+
+#input {
+  visibility: hidden;
+}
+
+.keyboard {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  height: 200px;
+  background-color: black;
+  flex-direction: column;
+}
+
+.keyboard .row {
+  gap: 5px;
+  width: 100%;
+  flex-grow: 1;
+  padding-top: 5px;
+}
+
+.keyboard .row:last-child {
+  padding-bottom: 5px;
+}
+
+.keyboard .row.top {
+}
+
+.key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #444444;
+  color: white;
+  padding: 5px;
+  flex-grow: 1;
+  /* aspect-ratio: 1/2; */
+  border-radius: 3px;
+}
+
+.key-content {
+}
+
+.half-key {
+  flex: 0.5;
+  visibility: hidden;
+}
+
+.one-and-a-half-key {
+  flex: 1.5;
 }

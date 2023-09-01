@@ -13,6 +13,7 @@ import { startTransition, useEffect, useRef } from "react";
 import githubImgUrl from "./assets/github-mark.png";
 import { Guess } from "./Guess";
 import { Word } from "./Word";
+import { Keyboard } from "./Keyboard";
 
 export const App = () => {
   const [patternArray] = useAtom(patternArrayAtom);
@@ -26,10 +27,14 @@ export const App = () => {
 
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    ref.current?.focus();
+    // ref.current?.focus();
   });
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  type EventLikeObject = {
+    key: string;
+  };
+
+  const handleKeyDown = (e: EventLikeObject) => {
     // no typing while animation is happening
     if (guessIsBad || guessIsGood) {
       return;
@@ -94,6 +99,7 @@ export const App = () => {
           <Word key={index} word={word} />
         ))}
       </div>
+      <Keyboard handleKeyInput={handleKeyDown} />
     </div>
   );
 };
