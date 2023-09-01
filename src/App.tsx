@@ -2,19 +2,17 @@ import { useAtom } from "jotai";
 import "./App.css";
 import {
   foundWordsAtom,
-  loadableAtom,
   currentGuessArrayAtom,
   WORD_LENGTH,
   validWordsAtom,
   patternArrayAtom,
   guessIsGoodAtom,
   guessIsBadAtom,
-  wordsAtom,
 } from "./store";
 import { startTransition, useEffect, useRef } from "react";
 import githubImgUrl from "./assets/github-mark.png";
 import { Guess } from "./Guess";
-import { Word } from "./WOrd";
+import { Word } from "./Word";
 
 export const App = () => {
   const [patternArray] = useAtom(patternArrayAtom);
