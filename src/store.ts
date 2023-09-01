@@ -5,8 +5,23 @@ import seedrandom from "seedrandom";
 
 export const LETTERS_TO_REVEAL = 2;
 export const WORD_LENGTH = 7;
+export const NUMBER_OF_VALID_WORDS = 45;
 // const TESTING_SEED = "asaaaaaaaaaaaaaaaadfsadfasdf";
 const TESTING_SEED = undefined;
+
+const createRegex = (word: string, indexesToReveal: number[]) => {
+  const letters = word.split("");
+  const patternLetters = new Array(letters.length).fill(".");
+
+  for (const index of indexesToReveal) {
+    patternLetters[index] = letters[index];
+  }
+
+  const regex = new RegExp(patternLetters.join(""));
+
+  return regex;
+
+}
 
 // choose a word from a seed, or the daily word
 export const choosePattern = (words: string[], seed?: string) => {
@@ -19,28 +34,27 @@ export const choosePattern = (words: string[], seed?: string) => {
   const word = words[Math.floor(rng() * words.length) + 1];
 
   const indexesToReveal: number[] = [];
+  let regex: RegExp;
 
-  for (let i = 0; i < LETTERS_TO_REVEAL; i++) {
+  do {
+    console.log("trying for an index...")
     let candidate;
 
     do {
       candidate = Math.floor(rng() * word.length -1) + 1;
-      console.log("doing. candidate is ", candidate);
     } while (candidate === undefined || indexesToReveal.includes(candidate));
 
     indexesToReveal.push(candidate);
-  }
+    console.log("pushed new index", indexesToReveal)
 
-  const letters = word.split("");
-  const patternLetters = new Array(letters.length).fill(".");
+    regex = createRegex(word, indexesToReveal);
 
-  for (const index of indexesToReveal) {
-    patternLetters[index] = letters[index];
-  }
+    console.log("regex is ", regex.source)
+    console.log("valid words are", words.filter(word => regex.exec(word)));
 
-  const regex = new RegExp(patternLetters.join(""));
+  } while (words.filter(word => regex.exec(word)).length > NUMBER_OF_VALID_WORDS)
 
-  return regex;
+  return createRegex(word, indexesToReveal);
 };
 
 // async atoms
