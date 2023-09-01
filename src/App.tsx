@@ -108,7 +108,7 @@ export const App = () => {
           <img src={githubImgUrl} height="30px" />
         </a>
       </div>
-      <div className="main">
+      <div className="main flex ">
         <div className="description">
           Find as many words as you can that fit the pattern. Hi mom!
         </div>

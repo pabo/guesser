@@ -217,12 +217,13 @@ button:focus-visible {
 }
 
 .guess-letter {
-  padding: 5px;
-  /* border: 1px solid black; */
+  padding-left: 10px;
+  padding-right: 10px;
+  border: 1px solid black;
 }
 
 .guess-next-letter {
-  background-color: green;
+  background-color: rgb(150, 175, 150);
 }
 
 .repeat {
@@ -277,4 +278,8 @@ button:focus-visible {
     transform: translateX(0);
     color: yellow;
   }
+}
+
+.main {
+  justify-content: center;
 }
