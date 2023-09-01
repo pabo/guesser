@@ -13,3 +13,5 @@ You can play here: https://pabo.github.io/guesser/
 - clean, organize
 - reveal more letters so there are <X words remaining
 - highlight fixed letters
+- ~~mobile~~
+- clean keyboard and focus on desktop

@@ -24,8 +24,8 @@ export const choosePattern = (words: string[], seed?: string) => {
     let candidate;
 
     do {
-      console.log("doing");
-      candidate = Math.floor(rng() * word.length) + 1;
+      candidate = Math.floor(rng() * word.length -1) + 1;
+      console.log("doing. candidate is ", candidate);
     } while (candidate === undefined || indexesToReveal.includes(candidate));
 
     indexesToReveal.push(candidate);
