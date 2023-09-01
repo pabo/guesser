@@ -117,3 +117,8 @@ export const combinedGuessAndPatternAtom = atom(async (get) => {
 
 // const date = new Date();
 // export const seedAtom = atomWithStorage("seed", `${date.getFullYear()}${date.getMonth()}${date.getDate()}`)
+
+
+// Keyboard
+// TODO: this could have been a state honestly. with component composition?
+export const selectedKeyAtom = atom<string|null>(null);

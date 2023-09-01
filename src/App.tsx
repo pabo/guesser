@@ -36,6 +36,7 @@ export const App = () => {
   };
 
   const handleKeyDown = (e: EventLikeObject) => {
+    console.log("handling key", e.key);
     // TODO: the whole animation thing is janky. timings are coupled, states are messy
     // no typing while animation is happening
     if (guessIsBad || guessIsGood) {
@@ -46,7 +47,7 @@ export const App = () => {
     const allowedKeys = "abcdefghijklmnopqrstuvwxyz".split("");
 
     // remove the last guessed letter
-    if (e.key === "Backspace") {
+    if (e.key === "Backspace" || e.key === "del") {
       const lastGuessIndex = guessArray.findLastIndex((x) => x !== undefined);
 
       startTransition(() => {

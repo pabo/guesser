@@ -175,6 +175,10 @@ button:focus-visible {
   height: 200px;
   background-color: black;
   flex-direction: column;
+  touch-action: none;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 }
 
 .keyboard .row {
@@ -213,6 +217,10 @@ button:focus-visible {
 
 .one-and-a-half-key {
   flex: 1.5;
+}
+
+.selected {
+  background-color: black;
 }
 
 .guess-letter {
