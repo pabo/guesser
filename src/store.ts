@@ -43,7 +43,8 @@ export const choosePattern = (words: string[], seed?: string) => {
     let candidate;
 
     do {
-      candidate = Math.floor(rng() * word.length - 1) + 1;
+      // -1/+1 doesnt allow the first letter to be fixed which is a workaround for the bug
+      candidate = Math.floor(rng() * (word.length - 1)) + 1;
     } while (candidate === undefined || indexesToReveal.includes(candidate));
 
     indexesToReveal.push(candidate);
@@ -83,10 +84,10 @@ export const validWordsAtom = atom(async (get) => {
 });
 
 // game progress
-export const guessArrayAtom = atomWithStorage<(string | undefined)[]>(
-  "guessArray",
-  []
-);
+
+// can I initialize this with leading nulls if they should be there
+export const guessArrayAtom = atom<(string | undefined)[]>([]);
+
 export const foundWordsAtom = atomWithStorage<string[]>("foundWords", []);
 export const guessIsGoodAtom = atom(false);
 export const guessIsBadAtom = atom(false);

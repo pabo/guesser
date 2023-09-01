@@ -18,9 +18,15 @@ export const Word: React.FC<WordProps> = ({ word }) => {
 
   const placeholder = "xxxxxxx";
 
+  // console.log(
+  // "word render",
+  // guessIsRepeat && combinedGuessAndPattern.join("") === word
+  // );
+
   return (
     <div
       onAnimationEnd={() => {
+        // TODO: why is/isnt this needed
         setGuessIsRepeat(false);
       }}
       className={classNames({

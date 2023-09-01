@@ -36,6 +36,7 @@ export const App = () => {
   };
 
   const handleKeyDown = (e: EventLikeObject) => {
+    // TODO: the whole animation thing is janky. timings are coupled, states are messy
     // no typing while animation is happening
     if (guessIsBad || guessIsGood) {
       return;
@@ -83,7 +84,9 @@ export const App = () => {
         const potentialWord = meldArrays(patternArray, nextGuessArray).join("");
 
         // is it repeat?
+        console.log("found words is", foundWords);
         if (foundWords.includes(potentialWord)) {
+          console.log("setting repeat");
           setGuessIsRepeat(true);
           return;
         }
