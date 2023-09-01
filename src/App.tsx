@@ -8,7 +8,6 @@ import {
   patternArrayAtom,
   guessIsGoodAtom,
   guessIsBadAtom,
-  combinedGuessAndPatternAtom,
   meldArrays,
 } from "./store";
 import { startTransition, useEffect, useRef } from "react";

@@ -27,16 +27,18 @@ export const Guess = () => {
           setGuessIsBad(false);
         }}
       >
-        {combinedGuessAndPattern.map((letter: string, index: number) => {
-          return <GuessLetter key={index} letter={letter} index={index} />;
-        })}
+        {combinedGuessAndPattern.map(
+          (letter: string | undefined, index: number) => {
+            return <GuessLetter key={index} letter={letter} index={index} />;
+          }
+        )}
       </h2>
     </Suspense>
   );
 };
 
 type GuessLetterProps = {
-  letter: string;
+  letter?: string;
   index: number;
 };
 

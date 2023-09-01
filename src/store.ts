@@ -83,7 +83,10 @@ export const validWordsAtom = atom(async (get) => {
 });
 
 // game progress
-export const guessArrayAtom = atomWithStorage<(string | undefined)[]>("guessArray", []);
+export const guessArrayAtom = atomWithStorage<(string | undefined)[]>(
+  "guessArray",
+  []
+);
 export const foundWordsAtom = atomWithStorage<string[]>("foundWords", []);
 export const guessIsGoodAtom = atom(false);
 export const guessIsBadAtom = atom(false);
@@ -92,14 +95,16 @@ export const guessIsBadAtom = atom(false);
 // from later arrays
 //
 // result array will have same length as first array.
-export const meldArrays = (array1: unknown[], array2: unknown[]) => {
+export const meldArrays: <T, U>(array1: T[], array2: U[]) => (T | U)[] = (
+  array1,
+  array2
+) => {
   return array1.map((value1, index) => {
     const value2 = array2[index];
 
     return value1 ?? value2;
   });
-
-}
+};
 
 export const combinedGuessAndPatternAtom = atom(async (get) => {
   const patternArray = await get(patternArrayAtom);
