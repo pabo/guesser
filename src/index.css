@@ -26,7 +26,7 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  place-items: center;
+  align-content: center;
   min-width: 320px;
   min-height: 100vh;
 }
@@ -73,13 +73,12 @@ button:focus-visible {
 }
 
 .words {
-  text-align: left;
 }
 
 .word {
   font-weight: bold;
   margin: 2px;
-  width: 6%;
+  width: 100px;
 }
 
 .faded {
@@ -150,4 +149,5 @@ button:focus-visible {
 .flex {
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
 }
