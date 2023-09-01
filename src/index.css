@@ -1,5 +1,5 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: monospace, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -72,7 +72,17 @@ button:focus-visible {
   outline-width: 0;
 }
 
-.hidden {
+.words {
+  text-align: left;
+}
+
+.word {
+  font-weight: bold;
+  margin: 2px;
+  width: 6%;
+}
+
+.faded {
   opacity: 0.15;
 }
 
@@ -135,4 +145,9 @@ button:focus-visible {
   top: 0;
   right: 0;
   padding: 10px;
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
 }

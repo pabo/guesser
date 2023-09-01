@@ -11,7 +11,7 @@ import {
   guessIsGoodAtom,
   guessIsBadAtom,
 } from "./store";
-import { Suspense, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import githubImgUrl from "./assets/github-mark.png";
 
 export const App = () => {
@@ -88,7 +88,7 @@ export const App = () => {
       <div className="main" ref={ref} tabIndex={0} onKeyDown={handleKeyDown}>
         <Guess />
       </div>
-      <div>
+      <div className="words flex">
         {validWords.map((word, index) => (
           <Word key={index} word={word} />
         ))}
@@ -131,10 +131,8 @@ const Word: React.FC<WordProps> = ({ word }) => {
   const placeholder = "xxxxxxx";
 
   return (
-    <Suspense fallback={<div>fallback</div>}>
-      <span className={`words ${isFound ? "" : "hidden"}`}>
-        {isFound ? word : placeholder}{" "}
-      </span>
-    </Suspense>
+    <div className={`word ${isFound ? "" : "faded"}`}>
+      {isFound ? word : placeholder}{" "}
+    </div>
   );
 };
