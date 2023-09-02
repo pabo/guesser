@@ -72,73 +72,14 @@ button:focus-visible {
   }
 }
 
-.word {
-  font-weight: bold;
-  margin: 2px;
-  width: 100px;
-  text-align: center;
-}
-
+/* utils */
 .faded {
   opacity: 0.15;
 }
 
-.guess {
-  justify-content: initial;
-}
-
-.guess.good-guess {
-  animation: good-guess 0.3s;
-}
-
-@keyframes good-guess {
-  0% {
-    transform: translateY(0px);
-    color: green;
-  }
-  25% {
-    transform: translateY(3px);
-    color: green;
-  }
-  50% {
-    transform: translateY(-3px);
-    color: green;
-  }
-  75% {
-    transform: translateY(3px);
-    color: green;
-  }
-  100% {
-    transform: translateY(0);
-    color: green;
-  }
-}
-
-.guess.bad-guess {
-  animation: bad-guess 0.3s;
-}
-
-@keyframes bad-guess {
-  0% {
-    transform: translateX(0px);
-    color: red;
-  }
-  25% {
-    transform: translateX(3px);
-    color: red;
-  }
-  50% {
-    transform: translateX(-3px);
-    color: red;
-  }
-  75% {
-    transform: translateX(3px);
-    color: red;
-  }
-  100% {
-    transform: translateX(0);
-    color: red;
-  }
+.vertically-centered {
+  display: flex;
+  align-items: center;
 }
 
 .flex {
@@ -148,6 +89,39 @@ button:focus-visible {
 
 .row {
   flex-direction: row;
+}
+
+/* Guess */
+.guess {
+  justify-content: initial;
+}
+
+.guess.good-guess {
+  animation: good-guess 0.3s;
+}
+
+.guess.bad-guess {
+  animation: bad-guess 0.3s;
+}
+
+.guess-letter {
+  padding-left: 10px;
+  padding-right: 10px;
+  border: 2px solid rgb(150, 150, 150);
+  margin: 2px;
+}
+
+.guess-filled-letter {
+  border-color: black;
+}
+
+.guess-fixed-letter {
+  background-color: rgb(150, 175, 150);
+  border-color: black;
+}
+
+.guess-next-letter {
+  border-color: black;
 }
 
 /* structure */
@@ -178,15 +152,18 @@ button:focus-visible {
   padding: 25px;
 }
 
+/* Word */
 .words {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
 }
 
-.vertically-centered {
-  display: flex;
-  align-items: center;
+.word {
+  font-weight: bold;
+  margin: 2px;
+  width: 100px;
+  text-align: center;
 }
 
 /* why does <a> add height to <img> */
@@ -202,6 +179,16 @@ button:focus-visible {
   visibility: hidden;
 }
 
+/* Settings */
+.settings {
+  visibility: hidden;
+}
+
+.is-open {
+  visibility: visible;
+}
+
+/* Keyboard */
 .keyboard {
   position: fixed;
   bottom: 0px;
@@ -227,9 +214,6 @@ button:focus-visible {
   padding-bottom: 5px;
 }
 
-.keyboard .row.top {
-}
-
 .key {
   display: flex;
   align-items: center;
@@ -240,9 +224,6 @@ button:focus-visible {
   flex-grow: 1;
   /* aspect-ratio: 1/2; */
   border-radius: 3px;
-}
-
-.key-content {
 }
 
 .half-key {
@@ -257,29 +238,12 @@ button:focus-visible {
 .selected {
   background-color: black;
 }
-
-.guess-letter {
-  padding-left: 10px;
-  padding-right: 10px;
-  border: 2px solid rgb(150, 150, 150);
-  margin: 2px;
-}
-
-.guess-filled-letter {
-  border-color: black;
-}
-
-.guess-fixed-letter {
-  background-color: rgb(150, 175, 150);
-  border-color: black;
-}
-
-.guess-next-letter {
-  border-color: black;
-}
-
 .repeat {
   animation: repeat 0.3s;
+}
+
+.repeat-guess {
+  animation: repeat-guess 0.3s;
 }
 
 @keyframes repeat {
@@ -305,10 +269,6 @@ button:focus-visible {
   }
 }
 
-.repeat-guess {
-  animation: repeat-guess 0.3s;
-}
-
 @keyframes repeat-guess {
   0% {
     transform: translateX(0px);
@@ -329,5 +289,51 @@ button:focus-visible {
   100% {
     transform: translateX(0);
     color: yellow;
+  }
+}
+
+@keyframes bad-guess {
+  0% {
+    transform: translateX(0px);
+    color: red;
+  }
+  25% {
+    transform: translateX(3px);
+    color: red;
+  }
+  50% {
+    transform: translateX(-3px);
+    color: red;
+  }
+  75% {
+    transform: translateX(3px);
+    color: red;
+  }
+  100% {
+    transform: translateX(0);
+    color: red;
+  }
+}
+
+@keyframes good-guess {
+  0% {
+    transform: translateY(0px);
+    color: green;
+  }
+  25% {
+    transform: translateY(3px);
+    color: green;
+  }
+  50% {
+    transform: translateY(-3px);
+    color: green;
+  }
+  75% {
+    transform: translateY(3px);
+    color: green;
+  }
+  100% {
+    transform: translateY(0);
+    color: green;
   }
 }

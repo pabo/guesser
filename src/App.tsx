@@ -2,7 +2,6 @@ import { useAtom } from "jotai";
 import {
   foundWordsAtom,
   guessArrayAtom,
-  WORD_LENGTH,
   validWordsAtom,
   patternArrayAtom,
   guessIsGoodAtom,
@@ -10,12 +9,15 @@ import {
   meldArrays,
   guessIsRepeatAtom,
   acceptingInputAtom,
+  wordLengthAtom,
+  foundWordsAllLengthsAtom,
 } from "./store";
-import { startTransition, useEffect, useRef } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 import githubImgUrl from "./assets/github-mark.png";
 import { Guess } from "./Guess";
 import { Word } from "./Word";
 import { Keyboard } from "./Keyboard";
+import { Settings } from "./Settings";
 
 export const App = () => {
   const [patternArray] = useAtom(patternArrayAtom);
@@ -24,8 +26,12 @@ export const App = () => {
   const [guessIsBad, setGuessIsBad] = useAtom(guessIsBadAtom);
   const [, setGuessIsRepeat] = useAtom(guessIsRepeatAtom);
   const [validWords] = useAtom(validWordsAtom);
-  const [foundWords, setFoundWords] = useAtom(foundWordsAtom);
+  const [foundWords] = useAtom(foundWordsAtom);
+  const [, setFoundWordsAllLengths] = useAtom(foundWordsAllLengthsAtom);
   const [acceptingInput, setAcceptingInput] = useAtom(acceptingInputAtom);
+  const [wordLength] = useAtom(wordLengthAtom);
+
+  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
 
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -65,7 +71,7 @@ export const App = () => {
       let index = guessArray.length + 1;
       let nextPatternCharacter = patternArray[index];
 
-      while (index < WORD_LENGTH && nextPatternCharacter !== undefined) {
+      while (index < wordLength && nextPatternCharacter !== undefined) {
         lettersToAdd.push(undefined);
         nextPatternCharacter = patternArray[++index];
       }
@@ -83,7 +89,7 @@ export const App = () => {
       });
 
       // does this guess finish a word?
-      if (guessArray.length + lettersToAdd.length >= WORD_LENGTH) {
+      if (guessArray.length + lettersToAdd.length >= wordLength) {
         // give time for animation to complete, and then reset the guess input
         // TODO: should this hook into onanimationend instead?
         setTimeout(() => setGuessArray([]), 300);
@@ -92,8 +98,7 @@ export const App = () => {
         const potentialWord = meldArrays(patternArray, nextGuessArray).join("");
 
         // is it repeat?
-        console.log("found words is", foundWords);
-        if (foundWords.includes(potentialWord)) {
+        if (foundWords?.includes(potentialWord)) {
           console.log("setting repeat");
           setGuessIsRepeat(true);
           return;
@@ -102,7 +107,13 @@ export const App = () => {
         // is it valid?
         if (validWords.includes(potentialWord)) {
           setGuessIsGood(true);
-          setFoundWords((words) => [...words, potentialWord]);
+          setFoundWordsAllLengths((map) => {
+            const newMap = new Map(map);
+            const foundWords = map.get(wordLength) || [];
+            newMap.set(wordLength, [...foundWords, potentialWord]);
+            console.log("newMap", newMap);
+            return newMap;
+          });
           return;
         }
 
@@ -113,7 +124,7 @@ export const App = () => {
   };
 
   const handleSettingsClick = () => {
-    console.log("open settings");
+    setIsSettingsOpen((x) => !x);
   };
 
   return (
@@ -138,6 +149,7 @@ export const App = () => {
         </div>
         <Keyboard handleKeyInput={handleKeyDown} />
       </div>
+      <Settings isOpen={isSettingsOpen} />
     </div>
   );
 };

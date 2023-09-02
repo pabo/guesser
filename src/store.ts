@@ -1,15 +1,29 @@
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-// import wordsUrl from "../wordlists/enable7.txt";
-import wordsUrl from "../wordlists/wordle.txt";
+import wordsUrl7 from "../wordlists/enable7.txt";
+import wordsUrl5 from "../wordlists/wordle.txt";
 import seedrandom from "seedrandom";
-
-export const LETTERS_TO_REVEAL = 2;
-export const WORD_LENGTH = 5;
-export const MAX_NUMBER_OF_VALID_WORDS = 45;
 
 // We pick one target word at random, then create a pattern that matches the target word
 // and several others. We give the player the pattern so that they can guess all the matching words
+
+export const LETTERS_TO_REVEAL = 2;
+export const MAX_NUMBER_OF_VALID_WORDS = 45;
+
+export enum WordLength {
+  Five = 5,
+  Seven = 7,
+}
+
+const wordlistMapping: { [key in WordLength]: string } = {
+  [WordLength.Five]: wordsUrl5,
+  [WordLength.Seven]: wordsUrl7,
+};
+
+export const wordLengthAtom = atom(WordLength.Five);
+export const wordlistUrlAtom = atom(
+  (get) => wordlistMapping[get(wordLengthAtom)]
+);
 
 // const TESTING_SEED = "asaaaaaaaaadfsadfasdf";
 const TESTING_SEED = undefined;
@@ -63,7 +77,8 @@ export const choosePattern = (words: string[], seed?: string) => {
 // main fetch, which is async. It is this async-ness that trickles down
 // into all the derived atoms. If we made this a bundled import instead, there
 // would be no async. I'm leaving it async for now to get more familiar with async atoms
-export const wordsAtom = atom(async () => {
+export const wordsAtom = atom(async (get) => {
+  const wordsUrl = get(wordlistUrlAtom);
   const response = await fetch(wordsUrl);
   return (await response.text()).split("\n");
 });
@@ -86,10 +101,27 @@ export const validWordsAtom = atom(async (get) => {
 
 // game progress
 
-// can I initialize this with leading nulls if they should be there
+// TODO: BUG can I initialize this with leading nulls if they should be there
 export const guessArrayAtom = atom<(string | undefined)[]>([]);
 
-export const foundWordsAtom = atomWithStorage<string[]>("foundWords", []);
+export const foundWordsAllLengthsAtom = atomWithStorage<Map<number, string[]>>(
+  "foundWordsAllLengths",
+  new Map()
+);
+
+// found words is derived
+export const foundWordsAtom = atom((get) => {
+  const foundWordsAllLengths = get(foundWordsAllLengthsAtom);
+  const wordLength = get(wordLengthAtom);
+
+  // TODO: why is this needed?
+  if (typeof foundWordsAllLengths.get === "function") {
+    return foundWordsAllLengths.get(wordLength) || [];
+  }
+
+  return [];
+});
+
 export const guessIsGoodAtom = atom(false);
 export const guessIsBadAtom = atom(false);
 export const guessIsRepeatAtom = atom(false);
@@ -119,10 +151,9 @@ export const combinedGuessAndPatternAtom = atom(async (get) => {
 // const date = new Date();
 // export const seedAtom = atomWithStorage("seed", `${date.getFullYear()}${date.getMonth()}${date.getDate()}`)
 
-
 // Keyboard
 // TODO: this could have been a state honestly. with component composition?
-export const selectedKeyAtom = atom<string|null>(null);
+export const selectedKeyAtom = atom<string | null>(null);
 
 // This allows us to temporarily disable keyboard input, for deduping click and move
 export const acceptingInputAtom = atom(true);
