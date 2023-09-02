@@ -59,6 +59,10 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+button.selected-button {
+  background-color: rgb(150, 175, 150);
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -181,7 +185,23 @@ button:focus-visible {
 
 /* Settings */
 .settings {
+  border: 5px solid red;
+  background-color: yellow;
+  border-radius: 15px;
   visibility: hidden;
+  position: absolute;
+  top: 25px;
+  bottom: 25px;
+  right: 25px;
+  left: 25px;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: flex-end; */
+  /* align-items: end; */
+}
+
+.settings .close {
+  align-self: flex-end;
 }
 
 .is-open {

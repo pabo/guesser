@@ -20,11 +20,6 @@ export const Word: React.FC<WordProps> = ({ word }) => {
 
   const placeholder = new Array(wordLength).fill("x").join("");
 
-  // console.log(
-  // "word render",
-  // guessIsRepeat && combinedGuessAndPattern.join("") === word
-  // );
-
   return (
     <div
       onAnimationEnd={() => {

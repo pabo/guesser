@@ -11,13 +11,14 @@ import {
   acceptingInputAtom,
   wordLengthAtom,
   foundWordsAllLengthsAtom,
+  WordLength,
 } from "./store";
-import { startTransition, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import githubImgUrl from "./assets/github-mark.png";
 import { Guess } from "./Guess";
 import { Word } from "./Word";
 import { Keyboard } from "./Keyboard";
-import { Settings } from "./Settings";
+import classNames from "classnames";
 
 export const App = () => {
   const [patternArray] = useAtom(patternArrayAtom);
@@ -29,9 +30,7 @@ export const App = () => {
   const [foundWords] = useAtom(foundWordsAtom);
   const [, setFoundWordsAllLengths] = useAtom(foundWordsAllLengthsAtom);
   const [acceptingInput, setAcceptingInput] = useAtom(acceptingInputAtom);
-  const [wordLength] = useAtom(wordLengthAtom);
-
-  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+  const [wordLength, setWordLength] = useAtom(wordLengthAtom);
 
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -43,7 +42,6 @@ export const App = () => {
   };
 
   const handleKeyDown = (e: EventLikeObject) => {
-    console.log("handling key", e.key);
     // TODO: the whole animation thing is janky. timings are coupled, states are messy
     // no typing while animation is happening
     if (guessIsBad || guessIsGood || !acceptingInput) {
@@ -57,9 +55,7 @@ export const App = () => {
     if (e.key === "Backspace" || e.key === "del") {
       const lastGuessIndex = guessArray.findLastIndex((x) => x !== undefined);
 
-      startTransition(() => {
-        setGuessArray((guess) => guess.slice(0, lastGuessIndex));
-      });
+      setGuessArray((guess) => guess.slice(0, lastGuessIndex));
       return;
     }
 
@@ -76,17 +72,13 @@ export const App = () => {
         nextPatternCharacter = patternArray[++index];
       }
 
-      // wrapped because a synchronous event (user click) causes an async update (async atoms).
-      // and without this, we would block rendering or something
-      startTransition(() => {
-        setGuessArray((guess) => [...guess, ...lettersToAdd]);
-        console.log("preventing input");
-        setAcceptingInput(false);
-        setTimeout(() => {
-          setAcceptingInput(true);
-          console.log("allowing input");
-        }, 100);
-      });
+      setGuessArray((guess) => [...guess, ...lettersToAdd]);
+
+      // TODO: semi hacky way to dedupe click/move touch events
+      setAcceptingInput(false);
+      setTimeout(() => {
+        setAcceptingInput(true);
+      }, 50);
 
       // does this guess finish a word?
       if (guessArray.length + lettersToAdd.length >= wordLength) {
@@ -99,7 +91,6 @@ export const App = () => {
 
         // is it repeat?
         if (foundWords?.includes(potentialWord)) {
-          console.log("setting repeat");
           setGuessIsRepeat(true);
           return;
         }
@@ -107,12 +98,15 @@ export const App = () => {
         // is it valid?
         if (validWords.includes(potentialWord)) {
           setGuessIsGood(true);
-          setFoundWordsAllLengths((map) => {
-            const newMap = new Map(map);
-            const foundWords = map.get(wordLength) || [];
-            newMap.set(wordLength, [...foundWords, potentialWord]);
-            console.log("newMap", newMap);
-            return newMap;
+          // TODO: feels like I should be able to make a setter for foundWordsAtom instead...
+          setFoundWordsAllLengths((foundWordsAllLengths) => {
+            const copy = { ...foundWordsAllLengths };
+            if (copy[wordLength]) {
+              copy[wordLength].push(potentialWord);
+            } else {
+              copy[wordLength] = [potentialWord];
+            }
+            return copy;
           });
           return;
         }
@@ -123,14 +117,30 @@ export const App = () => {
     }
   };
 
-  const handleSettingsClick = () => {
-    setIsSettingsOpen((x) => !x);
+  const changeWordLength = (length: WordLength) => {
+    setWordLength(length);
+    setGuessArray([]);
   };
 
   return (
     <div className="page" ref={ref} tabIndex={0} onKeyDown={handleKeyDown}>
       <div className="links vertically-centered">
-        <button onClick={handleSettingsClick}>Settings</button>
+        <button
+          className={classNames({
+            "selected-button": wordLength === WordLength.Five,
+          })}
+          onClick={() => changeWordLength(WordLength.Five)}
+        >
+          5
+        </button>
+        <button
+          className={classNames({
+            "selected-button": wordLength === WordLength.Seven,
+          })}
+          onClick={() => changeWordLength(WordLength.Seven)}
+        >
+          7
+        </button>
         <div className="link-image">
           <a href="https://github.com/pabo/guesser">
             <img src={githubImgUrl} />
@@ -149,7 +159,6 @@ export const App = () => {
         </div>
         <Keyboard handleKeyInput={handleKeyDown} />
       </div>
-      <Settings isOpen={isSettingsOpen} />
     </div>
   );
 };

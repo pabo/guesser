@@ -5,7 +5,7 @@ import {
   guessArrayAtom,
   combinedGuessAndPatternAtom,
   patternArrayAtom,
-  // guessIsRepeatAtom,
+  gameOverAtom,
 } from "./store";
 import { Suspense } from "react";
 import classNames from "classnames";
@@ -13,8 +13,8 @@ import classNames from "classnames";
 export const Guess = () => {
   const [guessIsGood, setGuessIsGood] = useAtom(guessIsGoodAtom);
   const [guessIsBad, setGuessIsBad] = useAtom(guessIsBadAtom);
-  // const [guessIsRepeat] = useAtom(guessIsRepeatAtom);
   const [combinedGuessAndPattern] = useAtom(combinedGuessAndPatternAtom);
+  const [gameOver] = useAtom(gameOverAtom);
 
   return (
     <Suspense fallback={"fallback"}>
@@ -24,18 +24,19 @@ export const Guess = () => {
           guess: true,
           "good-guess": guessIsGood,
           "bad-guess": guessIsBad,
-          // "repeat-guess": guessIsRepeat,
         })}
         onAnimationEnd={() => {
           setGuessIsGood(false);
           setGuessIsBad(false);
         }}
       >
-        {combinedGuessAndPattern.map(
-          (letter: string | undefined, index: number) => {
-            return <GuessLetter key={index} letter={letter} index={index} />;
-          }
-        )}
+        {gameOver && "You win!"}
+        {!gameOver &&
+          combinedGuessAndPattern.map(
+            (letter: string | undefined, index: number) => {
+              return <GuessLetter key={index} letter={letter} index={index} />;
+            }
+          )}
       </h2>
     </Suspense>
   );

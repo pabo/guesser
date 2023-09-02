@@ -10,10 +10,15 @@ You can play here: https://pabo.github.io/guesser/
 
 - daily vs random
 - clean, organize
-- ~~reveal more letters so there are <X words remaining~~
-- ~~highlight fixed letters~~
-- ~~mobile~~
-- ~~clean keyboard and focus on desktop~~
 - repeat bug
-- score / win screen
-- BUG touchmove and click both happen, double input
+- score?
+
+## Changelog
+
+- word length button
+- loading the wordlist in the main bundle, with no async atoms
+- added "You win!"
+- fixed double-input bug due to mousemove and click
+- implemented on-screen keyboard
+- added mobile view
+- number of letters revealed decreases until there are less than 40 words to guess

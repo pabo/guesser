@@ -1,7 +1,7 @@
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import wordsUrl7 from "../wordlists/enable7.txt";
-import wordsUrl5 from "../wordlists/wordle.txt";
+import {words as words5} from "../wordlists/wordle";
+import {words as words7} from "../wordlists/enable7";
 import seedrandom from "seedrandom";
 
 // We pick one target word at random, then create a pattern that matches the target word
@@ -15,12 +15,13 @@ export enum WordLength {
   Seven = 7,
 }
 
-const wordlistMapping: { [key in WordLength]: string } = {
-  [WordLength.Five]: wordsUrl5,
-  [WordLength.Seven]: wordsUrl7,
+const wordlistMapping: { [key in WordLength]: string[] } = {
+  [WordLength.Five]: words5,
+  [WordLength.Seven]: words7,
 };
 
-export const wordLengthAtom = atom(WordLength.Five);
+// default 5 letter length
+export const wordLengthAtom = atomWithStorage("wordLength", WordLength.Five);
 export const wordlistUrlAtom = atom(
   (get) => wordlistMapping[get(wordLengthAtom)]
 );
@@ -73,28 +74,23 @@ export const choosePattern = (words: string[], seed?: string) => {
 };
 
 // atoms
+export const wordsAtom = atom(get => {
+  const wordLength = get(wordLengthAtom);
+  return wordlistMapping[wordLength];
+ });
 
-// main fetch, which is async. It is this async-ness that trickles down
-// into all the derived atoms. If we made this a bundled import instead, there
-// would be no async. I'm leaving it async for now to get more familiar with async atoms
-export const wordsAtom = atom(async (get) => {
-  const wordsUrl = get(wordlistUrlAtom);
-  const response = await fetch(wordsUrl);
-  return (await response.text()).split("\n");
-});
-
-export const patternAtom = atom(async (get) =>
-  choosePattern(await get(wordsAtom), TESTING_SEED)
+export const patternAtom = atom((get) =>
+  choosePattern(get(wordsAtom), TESTING_SEED)
 );
-export const patternArrayAtom = atom(async (get) => {
-  return (await get(patternAtom)).source
+export const patternArrayAtom = atom((get) => {
+  return (get(patternAtom)).source
     .split("")
     .map((x) => (x === "." ? undefined : x));
 });
 
-export const validWordsAtom = atom(async (get) => {
-  const words = await get(wordsAtom);
-  const pattern = await get(patternAtom);
+export const validWordsAtom = atom((get) => {
+  const words = get(wordsAtom);
+  const pattern = get(patternAtom);
 
   return words.filter((word) => pattern.exec(word));
 });
@@ -104,9 +100,13 @@ export const validWordsAtom = atom(async (get) => {
 // TODO: BUG can I initialize this with leading nulls if they should be there
 export const guessArrayAtom = atom<(string | undefined)[]>([]);
 
-export const foundWordsAllLengthsAtom = atomWithStorage<Map<number, string[]>>(
+type WordLengthToFoundWordsMap = {
+  [key in WordLength]: string[]
+}
+
+export const foundWordsAllLengthsAtom = atomWithStorage(
   "foundWordsAllLengths",
-  new Map()
+ {} as WordLengthToFoundWordsMap 
 );
 
 // found words is derived
@@ -114,13 +114,15 @@ export const foundWordsAtom = atom((get) => {
   const foundWordsAllLengths = get(foundWordsAllLengthsAtom);
   const wordLength = get(wordLengthAtom);
 
-  // TODO: why is this needed?
-  if (typeof foundWordsAllLengths.get === "function") {
-    return foundWordsAllLengths.get(wordLength) || [];
-  }
-
-  return [];
+  return foundWordsAllLengths[wordLength] || [];
 });
+
+export const gameOverAtom = atom(get => {
+  const foundWords = get(foundWordsAtom);
+  const validWords = get(validWordsAtom);
+
+  return foundWords.length === validWords.length;
+})
 
 export const guessIsGoodAtom = atom(false);
 export const guessIsBadAtom = atom(false);
@@ -141,8 +143,8 @@ export const meldArrays: <T, U>(array1: T[], array2: U[]) => (T | U)[] = (
   });
 };
 
-export const combinedGuessAndPatternAtom = atom(async (get) => {
-  const patternArray = await get(patternArrayAtom);
+export const combinedGuessAndPatternAtom = atom((get) => {
+  const patternArray = get(patternArrayAtom);
   const guessArray = get(guessArrayAtom);
 
   return meldArrays(patternArray, guessArray);

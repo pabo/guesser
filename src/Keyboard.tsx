@@ -39,7 +39,6 @@ export const Keyboard: React.FC<KeyboardProps> = ({ handleKeyInput }) => {
   };
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    console.log("touchmove");
     // stops scrolling
     // e.preventDefault();
 
@@ -61,7 +60,6 @@ export const Keyboard: React.FC<KeyboardProps> = ({ handleKeyInput }) => {
   const throttledTouchMove = useCallback(throttle(handleTouchMove, 50), []);
 
   const handleTouchEnd = () => {
-    console.log("touch ending", selectedKey);
     // using the selectedKey, which was last set by a mousemove, could possibly be different
     // than where the touch ended?
     if (selectedKey) {
