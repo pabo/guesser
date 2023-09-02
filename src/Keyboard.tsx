@@ -1,7 +1,6 @@
 import { selectedKeyAtom } from "./store";
 import { useAtom } from "jotai";
 import classNames from "classnames";
-import debounce from "lodash/debounce";
 import throttle from "lodash/throttle";
 import { useCallback } from "react";
 

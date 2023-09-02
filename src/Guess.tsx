@@ -4,6 +4,7 @@ import {
   guessIsBadAtom,
   guessArrayAtom,
   combinedGuessAndPatternAtom,
+  patternArrayAtom,
   // guessIsRepeatAtom,
 } from "./store";
 import { Suspense } from "react";
@@ -47,12 +48,15 @@ type GuessLetterProps = {
 
 export const GuessLetter: React.FC<GuessLetterProps> = ({ letter, index }) => {
   const [guessArray] = useAtom(guessArrayAtom);
+  const [patternArray] = useAtom(patternArrayAtom);
 
   return (
     <div
       className={classNames({
         "guess-letter": true,
-        "guess-next-letter": guessArray.length === index,
+        "guess-filled-letter": index < guessArray.length,
+        "guess-next-letter": index === guessArray.length,
+        "guess-fixed-letter": patternArray[index],
       })}
     >
       {letter || "\u00A0" /* &nbsp; */}

@@ -1,10 +1,11 @@
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import wordsUrl from "../wordlists/enable7.txt";
+// import wordsUrl from "../wordlists/enable7.txt";
+import wordsUrl from "../wordlists/wordle.txt";
 import seedrandom from "seedrandom";
 
 export const LETTERS_TO_REVEAL = 2;
-export const WORD_LENGTH = 7;
+export const WORD_LENGTH = 5;
 export const MAX_NUMBER_OF_VALID_WORDS = 45;
 
 // We pick one target word at random, then create a pattern that matches the target word
@@ -122,3 +123,6 @@ export const combinedGuessAndPatternAtom = atom(async (get) => {
 // Keyboard
 // TODO: this could have been a state honestly. with component composition?
 export const selectedKeyAtom = atom<string|null>(null);
+
+// This allows us to temporarily disable keyboard input, for deduping click and move
+export const acceptingInputAtom = atom(true);

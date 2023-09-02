@@ -1,5 +1,6 @@
 import { useAtom } from "jotai";
 import {
+  WORD_LENGTH,
   combinedGuessAndPatternAtom,
   foundWordsAtom,
   guessIsRepeatAtom,
@@ -16,7 +17,7 @@ export const Word: React.FC<WordProps> = ({ word }) => {
   const [combinedGuessAndPattern] = useAtom(combinedGuessAndPatternAtom);
   const isFound = foundWords.includes(word);
 
-  const placeholder = "xxxxxxx";
+  const placeholder = new Array(WORD_LENGTH).fill("x").join("");
 
   // console.log(
   // "word render",

@@ -1,5 +1,4 @@
 import { useAtom } from "jotai";
-import "./App.css";
 import {
   foundWordsAtom,
   guessArrayAtom,
@@ -10,6 +9,7 @@ import {
   guessIsBadAtom,
   meldArrays,
   guessIsRepeatAtom,
+  acceptingInputAtom,
 } from "./store";
 import { startTransition, useEffect, useRef } from "react";
 import githubImgUrl from "./assets/github-mark.png";
@@ -25,6 +25,7 @@ export const App = () => {
   const [, setGuessIsRepeat] = useAtom(guessIsRepeatAtom);
   const [validWords] = useAtom(validWordsAtom);
   const [foundWords, setFoundWords] = useAtom(foundWordsAtom);
+  const [acceptingInput, setAcceptingInput] = useAtom(acceptingInputAtom);
 
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -39,7 +40,7 @@ export const App = () => {
     console.log("handling key", e.key);
     // TODO: the whole animation thing is janky. timings are coupled, states are messy
     // no typing while animation is happening
-    if (guessIsBad || guessIsGood) {
+    if (guessIsBad || guessIsGood || !acceptingInput) {
       return;
     }
 
@@ -73,6 +74,12 @@ export const App = () => {
       // and without this, we would block rendering or something
       startTransition(() => {
         setGuessArray((guess) => [...guess, ...lettersToAdd]);
+        console.log("preventing input");
+        setAcceptingInput(false);
+        setTimeout(() => {
+          setAcceptingInput(true);
+          console.log("allowing input");
+        }, 100);
       });
 
       // does this guess finish a word?
@@ -105,19 +112,26 @@ export const App = () => {
     }
   };
 
+  const handleSettingsClick = () => {
+    console.log("open settings");
+  };
+
   return (
     <div className="page" ref={ref} tabIndex={0} onKeyDown={handleKeyDown}>
-      <div className="links">
-        <a href="https://github.com/pabo/guesser">
-          <img src={githubImgUrl} height="30px" />
-        </a>
+      <div className="links vertically-centered">
+        <button onClick={handleSettingsClick}>Settings</button>
+        <div className="link-image">
+          <a href="https://github.com/pabo/guesser">
+            <img src={githubImgUrl} />
+          </a>
+        </div>
       </div>
-      <div className="main flex ">
+      <div className="main">
         <div className="description">
           Find as many words as you can that fit the pattern. Hi mom!
         </div>
         <Guess />
-        <div className="words flex">
+        <div className="words">
           {validWords.map((word, index) => (
             <Word key={index} word={word} />
           ))}
