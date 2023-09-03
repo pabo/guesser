@@ -27,8 +27,7 @@ export const App = () => {
   const [guessIsBad, setGuessIsBad] = useAtom(guessIsBadAtom);
   const [, setGuessIsRepeat] = useAtom(guessIsRepeatAtom);
   const [validWords] = useAtom(validWordsAtom);
-  const [foundWords] = useAtom(foundWordsAtom);
-  const [, setFoundWordsAllLengths] = useAtom(foundWordsAllLengthsAtom);
+  const [foundWords, addWordToFoundWords] = useAtom(foundWordsAtom);
   const [acceptingInput, setAcceptingInput] = useAtom(acceptingInputAtom);
   const [wordLength, setWordLength] = useAtom(wordLengthAtom);
 
@@ -98,16 +97,8 @@ export const App = () => {
         // is it valid?
         if (validWords.includes(potentialWord)) {
           setGuessIsGood(true);
-          // TODO: feels like I should be able to make a setter for foundWordsAtom instead...
-          setFoundWordsAllLengths((foundWordsAllLengths) => {
-            const copy = { ...foundWordsAllLengths };
-            if (copy[wordLength]) {
-              copy[wordLength].push(potentialWord);
-            } else {
-              copy[wordLength] = [potentialWord];
-            }
-            return copy;
-          });
+          addWordToFoundWords(potentialWord);
+          
           return;
         }
 

@@ -1,7 +1,7 @@
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import {words as words5} from "../wordlists/wordle";
-import {words as words7} from "../wordlists/enable7";
+import { words as words5 } from "../wordlists/wordle";
+import { words as words7 } from "../wordlists/enable7";
 import seedrandom from "seedrandom";
 
 // We pick one target word at random, then create a pattern that matches the target word
@@ -77,7 +77,7 @@ export const choosePattern = (words: string[], seed?: string) => {
 export const wordsAtom = atom(get => {
   const wordLength = get(wordLengthAtom);
   return wordlistMapping[wordLength];
- });
+});
 
 export const patternAtom = atom((get) =>
   choosePattern(get(wordsAtom), TESTING_SEED)
@@ -106,16 +106,31 @@ type WordLengthToFoundWordsMap = {
 
 export const foundWordsAllLengthsAtom = atomWithStorage(
   "foundWordsAllLengths",
- {} as WordLengthToFoundWordsMap 
+  {} as WordLengthToFoundWordsMap
 );
 
-// found words is derived
+// found words is derived based on wordLength
+// TODO: the "setter" isnt actually setting the value here. It's more of a
+//  `addWordToFoundWords` than a `setFoundWords`. Is this ok? 
 export const foundWordsAtom = atom((get) => {
   const foundWordsAllLengths = get(foundWordsAllLengthsAtom);
   const wordLength = get(wordLengthAtom);
 
   return foundWordsAllLengths[wordLength] || [];
-});
+}, (get, set, newFoundWord: string) => {
+  const foundWordsAllLengths = get(foundWordsAllLengthsAtom);
+  const wordLength = get(wordLengthAtom);
+
+  const newFoundWordsAllLengths = { ...foundWordsAllLengths } // TODO: BUG this is just copying arrays by ref
+  if (newFoundWordsAllLengths[wordLength]) {
+    newFoundWordsAllLengths[wordLength].push(newFoundWord);
+  } else {
+    newFoundWordsAllLengths[wordLength] = [newFoundWord];
+  }
+  set(foundWordsAllLengthsAtom, newFoundWordsAllLengths);
+
+}
+);
 
 export const gameOverAtom = atom(get => {
   const foundWords = get(foundWordsAtom);
