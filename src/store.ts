@@ -115,6 +115,7 @@ const objectOfArraysCopy = (oaa: WordLengthToFoundWordsMap) => {
 
   for (const [key, array] of Object.entries(oaa)) {
     // OK this is some TS grossness, but it works
+    // @ts-ignore-next-line
     const temp = { [WordLength[WordLength[parseInt(key,10)]]]: [...array]};
     newOaa = {...newOaa, ...temp}
   }

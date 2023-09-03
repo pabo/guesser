@@ -10,7 +10,6 @@ import {
   guessIsRepeatAtom,
   acceptingInputAtom,
   wordLengthAtom,
-  foundWordsAllLengthsAtom,
   WordLength,
 } from "./store";
 import { useEffect, useRef } from "react";
