@@ -33,7 +33,7 @@ export const Guess = () => {
         combinedGuessAndPattern.map(
           (letter: string | undefined, index: number) => {
             return <GuessLetter key={index} letter={letter} index={index} />;
-          }
+          },
         )}
     </h2>
   );

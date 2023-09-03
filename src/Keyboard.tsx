@@ -46,10 +46,10 @@ export const Keyboard: React.FC<KeyboardProps> = ({ handleKeyInput }) => {
 
     const elementsAtPoint = document.elementsFromPoint(
       touch.pageX,
-      touch.pageY
+      touch.pageY,
     );
     const keyElement = elementsAtPoint.find((el) =>
-      el.hasAttribute("data-key")
+      el.hasAttribute("data-key"),
     );
 
     const key = keyElement?.getAttribute("data-key") ?? null;

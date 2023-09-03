@@ -23,7 +23,7 @@ const wordlistMapping: { [key in WordLength]: string[] } = {
 // default 5 letter length
 export const wordLengthAtom = atomWithStorage("wordLength", WordLength.Five);
 export const wordlistUrlAtom = atom(
-  (get) => wordlistMapping[get(wordLengthAtom)]
+  (get) => wordlistMapping[get(wordLengthAtom)],
 );
 
 const createRegex = (word: string, indexesToReveal: number[]) => {
@@ -44,7 +44,7 @@ export const choosePattern = (words: string[], seed?: string) => {
   const date = new Date();
 
   const rng = seedrandom(
-    seed ? seed : `${date.getFullYear()}${date.getMonth()}${date.getDate()}`
+    seed ? seed : `${date.getFullYear()}${date.getMonth()}${date.getDate()}`,
   );
 
   const word = words[Math.floor(rng() * words.length) + 1];
@@ -77,11 +77,11 @@ export const isDailyModeAtom = atom(true);
 export const dailySeedAtom = atom(
   getCurrentDateString(),
   (get, set, newValue) => {
-    console.log("getting dailySeedAtom")
+    console.log("getting dailySeedAtom");
     // whenever we set this, we want to do a bunch of shit
     set(dailySeedAtom, newValue);
     set(foundWordsAllLengthsAtom, {} as WordLengthToFoundWordsMap);
-  }
+  },
 );
 
 export const wordsAtom = atom((get) => {
@@ -118,7 +118,7 @@ type WordLengthToFoundWordsMap = {
 
 export const foundWordsAllLengthsAtom = atomWithStorage(
   "foundWordsAllLengths",
-  {} as WordLengthToFoundWordsMap
+  {} as WordLengthToFoundWordsMap,
 );
 
 const objectOfArraysCopy = (oaa: WordLengthToFoundWordsMap) => {
@@ -126,6 +126,7 @@ const objectOfArraysCopy = (oaa: WordLengthToFoundWordsMap) => {
 
   for (const [key, array] of Object.entries(oaa)) {
     // OK this is some TS grossness, but it works
+    // eslint-disable-next-line
     // @ts-ignore-next-line
     const temp = { [WordLength[WordLength[parseInt(key, 10)]]]: [...array] };
     newOaa = { ...newOaa, ...temp };
@@ -156,7 +157,7 @@ export const foundWordsAtom = atom(
       newFoundWordsAllLengths[wordLength] = [newFoundWord];
     }
     set(foundWordsAllLengthsAtom, newFoundWordsAllLengths);
-  }
+  },
 );
 
 export const gameOverAtom = atom((get) => {
@@ -176,7 +177,7 @@ export const guessIsRepeatAtom = atom(false);
 // result array will have same length as first array.
 export const meldArrays: <T, U>(array1: T[], array2: U[]) => (T | U)[] = (
   array1,
-  array2
+  array2,
 ) => {
   return array1.map((value1, index) => {
     const value2 = array2[index];

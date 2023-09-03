@@ -52,6 +52,7 @@ export const App = () => {
     key: string;
   };
 
+  // TODO: need to get this logic out of the component. Do I need to pass all the required inputs into a store function? Or how else do I hook into the atoms?
   const handleKeyDown = (e: EventLikeObject) => {
     // TODO: the whole animation thing is janky. timings are coupled, states are messy
     // no typing while animation is happening
