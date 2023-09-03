@@ -74,7 +74,7 @@ export const choosePattern = (words: string[], seed?: string) => {
 };
 
 // atoms
-export const wordsAtom = atom(get => {
+export const wordsAtom = atom((get) => {
   const wordLength = get(wordLengthAtom);
   return wordlistMapping[wordLength];
 });
@@ -83,8 +83,8 @@ export const patternAtom = atom((get) =>
   choosePattern(get(wordsAtom), TESTING_SEED)
 );
 export const patternArrayAtom = atom((get) => {
-  return (get(patternAtom)).source
-    .split("")
+  return get(patternAtom)
+    .source.split("")
     .map((x) => (x === "." ? undefined : x));
 });
 
@@ -101,43 +101,60 @@ export const validWordsAtom = atom((get) => {
 export const guessArrayAtom = atom<(string | undefined)[]>([]);
 
 type WordLengthToFoundWordsMap = {
-  [key in WordLength]: string[]
-}
+  [key in WordLength]: string[];
+};
 
 export const foundWordsAllLengthsAtom = atomWithStorage(
   "foundWordsAllLengths",
   {} as WordLengthToFoundWordsMap
 );
 
+
+const objectOfArraysCopy = (oaa: WordLengthToFoundWordsMap) => {
+  let newOaa = {} as WordLengthToFoundWordsMap;
+
+  for (const [key, array] of Object.entries(oaa)) {
+    // OK this is some TS grossness, but it works
+    const temp = { [WordLength[WordLength[parseInt(key,10)]]]: [...array]};
+    newOaa = {...newOaa, ...temp}
+  }
+
+  console.log("old was", oaa);
+  console.log("new is", newOaa);
+  return newOaa;
+}
+
 // found words is derived based on wordLength
 // TODO: the "setter" isnt actually setting the value here. It's more of a
-//  `addWordToFoundWords` than a `setFoundWords`. Is this ok? 
-export const foundWordsAtom = atom((get) => {
-  const foundWordsAllLengths = get(foundWordsAllLengthsAtom);
-  const wordLength = get(wordLengthAtom);
+//  `addWordToFoundWords` than a `setFoundWords`. Is this ok?
+export const foundWordsAtom = atom(
+  (get) => {
+    const foundWordsAllLengths = get(foundWordsAllLengthsAtom);
+    const wordLength = get(wordLengthAtom);
 
-  return foundWordsAllLengths[wordLength] || [];
-}, (get, set, newFoundWord: string) => {
-  const foundWordsAllLengths = get(foundWordsAllLengthsAtom);
-  const wordLength = get(wordLengthAtom);
+    return foundWordsAllLengths[wordLength] || [];
+  },
+  (get, set, newFoundWord: string) => {
+    const foundWordsAllLengths = get(foundWordsAllLengthsAtom);
+    const wordLength = get(wordLengthAtom);
 
-  const newFoundWordsAllLengths = { ...foundWordsAllLengths } // TODO: BUG this is just copying arrays by ref
-  if (newFoundWordsAllLengths[wordLength]) {
-    newFoundWordsAllLengths[wordLength].push(newFoundWord);
-  } else {
-    newFoundWordsAllLengths[wordLength] = [newFoundWord];
+    const newFoundWordsAllLengths = objectOfArraysCopy(foundWordsAllLengths);
+
+    if (newFoundWordsAllLengths[wordLength]) {
+      newFoundWordsAllLengths[wordLength].push(newFoundWord);
+    } else {
+      newFoundWordsAllLengths[wordLength] = [newFoundWord];
+    }
+    set(foundWordsAllLengthsAtom, newFoundWordsAllLengths);
   }
-  set(foundWordsAllLengthsAtom, newFoundWordsAllLengths);
-
-}
 );
 
-export const gameOverAtom = atom(get => {
+export const gameOverAtom = atom((get) => {
   const foundWords = get(foundWordsAtom);
   const validWords = get(validWordsAtom);
 
   return foundWords.length === validWords.length;
-})
+});
 
 export const guessIsGoodAtom = atom(false);
 export const guessIsBadAtom = atom(false);

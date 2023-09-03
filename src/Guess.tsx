@@ -7,7 +7,6 @@ import {
   patternArrayAtom,
   gameOverAtom,
 } from "./store";
-import { Suspense } from "react";
 import classNames from "classnames";
 
 export const Guess = () => {
@@ -17,28 +16,26 @@ export const Guess = () => {
   const [gameOver] = useAtom(gameOverAtom);
 
   return (
-    <Suspense fallback={"fallback"}>
-      <h2
-        className={classNames({
-          flex: true,
-          guess: true,
-          "good-guess": guessIsGood,
-          "bad-guess": guessIsBad,
-        })}
-        onAnimationEnd={() => {
-          setGuessIsGood(false);
-          setGuessIsBad(false);
-        }}
-      >
-        {gameOver && "You win!"}
-        {!gameOver &&
-          combinedGuessAndPattern.map(
-            (letter: string | undefined, index: number) => {
-              return <GuessLetter key={index} letter={letter} index={index} />;
-            }
-          )}
-      </h2>
-    </Suspense>
+    <h2
+      className={classNames({
+        flex: true,
+        guess: true,
+        "good-guess": guessIsGood,
+        "bad-guess": guessIsBad,
+      })}
+      onAnimationEnd={() => {
+        setGuessIsGood(false);
+        setGuessIsBad(false);
+      }}
+    >
+      {gameOver && "You win!"}
+      {!gameOver &&
+        combinedGuessAndPattern.map(
+          (letter: string | undefined, index: number) => {
+            return <GuessLetter key={index} letter={letter} index={index} />;
+          }
+        )}
+    </h2>
   );
 };
 
