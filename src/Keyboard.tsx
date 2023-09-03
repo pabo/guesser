@@ -1,35 +1,14 @@
-import { selectedKeyAtom } from "./store";
+import { acceptLetterInput, selectedKeyAtom } from "./store";
 import { useAtom } from "jotai";
 import classNames from "classnames";
 import throttle from "lodash/throttle";
 import { useCallback } from "react";
 
-// _.debounce( function, wait, immediate )
-
 const keysTopRow = "QWERTYUIOP".split("");
 const keysMiddleRow = " ASDFGHJKL ".split("");
 const keysBottomRow = "ZXCVBNM".split("");
 
-type KeyboardProps = {
-  handleKeyInput: (eventLike: { key: string }) => void;
-};
-
-// Option A: useCallback() stores the debounced callback
-/*
-  const debouncedChangeHandler = useCallback(
-    debounce(changeHandler, 300)
-  , []);
-
-  // Option B: useMemo() stores the debounced callback
-  const debouncedEventHandler = useMemo(
-    () => debounce(eventHandler, 300)
-  , []);
-  
-  // ...
-}
-  */
-
-export const Keyboard: React.FC<KeyboardProps> = ({ handleKeyInput }) => {
+export const Keyboard = () => {
   const [selectedKey, setSelectedKey] = useAtom(selectedKeyAtom);
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -46,10 +25,10 @@ export const Keyboard: React.FC<KeyboardProps> = ({ handleKeyInput }) => {
 
     const elementsAtPoint = document.elementsFromPoint(
       touch.pageX,
-      touch.pageY,
+      touch.pageY
     );
     const keyElement = elementsAtPoint.find((el) =>
-      el.hasAttribute("data-key"),
+      el.hasAttribute("data-key")
     );
 
     const key = keyElement?.getAttribute("data-key") ?? null;
@@ -60,10 +39,8 @@ export const Keyboard: React.FC<KeyboardProps> = ({ handleKeyInput }) => {
   const throttledTouchMove = useCallback(throttle(handleTouchMove, 50), []);
 
   const handleTouchEnd = () => {
-    // using the selectedKey, which was last set by a mousemove, could possibly be different
-    // than where the touch ended?
     if (selectedKey) {
-      handleKeyInput({ key: selectedKey });
+      acceptLetterInput(selectedKey);
     }
 
     setSelectedKey(null);
@@ -75,27 +52,15 @@ export const Keyboard: React.FC<KeyboardProps> = ({ handleKeyInput }) => {
 
   return (
     <div
-      className="keyboard flex"
+      className="keyboard"
       onTouchStart={handleTouchStart}
       onTouchMove={throttledTouchMove}
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchCancel}
     >
-      <KeyboardRow
-        keys={keysTopRow}
-        position={"top"}
-        handleKeyInput={handleKeyInput}
-      />
-      <KeyboardRow
-        keys={keysMiddleRow}
-        position={"middle"}
-        handleKeyInput={handleKeyInput}
-      />
-      <KeyboardRow
-        keys={keysBottomRow}
-        position={"bottom"}
-        handleKeyInput={handleKeyInput}
-      />
+      <KeyboardRow keys={keysTopRow} position={"top"} />
+      <KeyboardRow keys={keysMiddleRow} position={"middle"} />
+      <KeyboardRow keys={keysBottomRow} position={"bottom"} />
     </div>
   );
 };
@@ -103,38 +68,25 @@ export const Keyboard: React.FC<KeyboardProps> = ({ handleKeyInput }) => {
 type KeyboardRowProps = {
   keys: string[];
   position: string;
-  handleKeyInput: (eventLike: { key: string }) => void;
 };
 
-const KeyboardRow: React.FC<KeyboardRowProps> = ({
-  keys,
-  position,
-  handleKeyInput,
-}) => {
+const KeyboardRow: React.FC<KeyboardRowProps> = ({ keys, position }) => {
   return (
     <div className={`flex row ${position}`}>
-      {position === "bottom" && (
-        <Key value="ENTER" handleKeyInput={handleKeyInput} />
-      )}
+      {position === "bottom" && <Key value="ENTER" />}
       {keys.map((key, index) => (
-        <Key key={index} value={key} handleKeyInput={handleKeyInput} />
+        <Key key={index} value={key} />
       ))}
-      {position === "bottom" && (
-        <Key
-          value="DEL"
-          handleKeyInput={() => handleKeyInput({ key: "Backspace" })}
-        />
-      )}
+      {position === "bottom" && <Key value="DEL" />}
     </div>
   );
 };
 
 type KeyProps = {
   value: string;
-  handleKeyInput: (eventLike: { key: string }) => void;
 };
 
-const Key: React.FC<KeyProps> = ({ value, handleKeyInput }) => {
+const Key: React.FC<KeyProps> = ({ value }) => {
   const [selectedKey] = useAtom(selectedKeyAtom);
   return (
     <div
@@ -146,7 +98,7 @@ const Key: React.FC<KeyProps> = ({ value, handleKeyInput }) => {
         selected: selectedKey?.toLowerCase() === value.toLowerCase(),
       })}
       onClick={() => {
-        handleKeyInput({ key: value.toLowerCase() });
+        acceptLetterInput(value.toLowerCase());
       }}
     >
       <div className="key-content">{value}</div>

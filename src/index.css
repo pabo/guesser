@@ -206,6 +206,7 @@ button.selected-button {
 
 /* Keyboard */
 .keyboard {
+  display: flex;
   position: fixed;
   bottom: 0px;
   left: 0px;

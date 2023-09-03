@@ -1,8 +1,26 @@
-import { atom } from "jotai";
+import { atom, getDefaultStore } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { words as words5 } from "../wordlists/wordle";
 import { words as words7 } from "../wordlists/enable7";
 import seedrandom from "seedrandom";
+
+// TODO: How do atoms know to connect to the default store? If I don't use the default store, do I have to manually attach all atoms to it?
+const store = getDefaultStore();
+
+// const store = createStore()
+
+// const countAtom = atom(0)
+// myStore.set(countAtom, 1)
+// const unsub = myStore.sub(countAtom, () => {
+//   console.log('countAtom value is changed to', myStore.get(countAtom))
+// })
+// // unsub() to unsubscribe
+
+// const Root = () => (
+//   <Provider store={myStore}>
+//     <App />
+//   </Provider>
+// )
 
 // We pick one target word at random, then create a pattern that matches the target word
 // and several others. We give the player the pattern so that they can guess all the matching words
@@ -23,7 +41,7 @@ const wordlistMapping: { [key in WordLength]: string[] } = {
 // default 5 letter length
 export const wordLengthAtom = atomWithStorage("wordLength", WordLength.Five);
 export const wordlistUrlAtom = atom(
-  (get) => wordlistMapping[get(wordLengthAtom)],
+  (get) => wordlistMapping[get(wordLengthAtom)]
 );
 
 const createRegex = (word: string, indexesToReveal: number[]) => {
@@ -44,7 +62,7 @@ export const choosePattern = (words: string[], seed?: string) => {
   const date = new Date();
 
   const rng = seedrandom(
-    seed ? seed : `${date.getFullYear()}${date.getMonth()}${date.getDate()}`,
+    seed ? seed : `${date.getFullYear()}${date.getMonth()}${date.getDate()}`
   );
 
   const word = words[Math.floor(rng() * words.length) + 1];
@@ -81,7 +99,7 @@ export const dailySeedAtom = atom(
     // whenever we set this, we want to do a bunch of shit
     set(dailySeedAtom, newValue);
     set(foundWordsAllLengthsAtom, {} as WordLengthToFoundWordsMap);
-  },
+  }
 );
 
 export const wordsAtom = atom((get) => {
@@ -90,7 +108,6 @@ export const wordsAtom = atom((get) => {
 });
 
 export const patternAtom = atom((get) => {
-  console.log("patternAtom");
   return choosePattern(get(wordsAtom), get(dailySeedAtom));
 });
 
@@ -118,7 +135,7 @@ type WordLengthToFoundWordsMap = {
 
 export const foundWordsAllLengthsAtom = atomWithStorage(
   "foundWordsAllLengths",
-  {} as WordLengthToFoundWordsMap,
+  {} as WordLengthToFoundWordsMap
 );
 
 const objectOfArraysCopy = (oaa: WordLengthToFoundWordsMap) => {
@@ -157,7 +174,7 @@ export const foundWordsAtom = atom(
       newFoundWordsAllLengths[wordLength] = [newFoundWord];
     }
     set(foundWordsAllLengthsAtom, newFoundWordsAllLengths);
-  },
+  }
 );
 
 export const gameOverAtom = atom((get) => {
@@ -177,7 +194,7 @@ export const guessIsRepeatAtom = atom(false);
 // result array will have same length as first array.
 export const meldArrays: <T, U>(array1: T[], array2: U[]) => (T | U)[] = (
   array1,
-  array2,
+  array2
 ) => {
   return array1.map((value1, index) => {
     const value2 = array2[index];
@@ -202,3 +219,87 @@ export const selectedKeyAtom = atom<string | null>(null);
 
 // This allows us to temporarily disable keyboard input, for deduping click and move
 export const acceptingInputAtom = atom(true);
+
+export type EventLikeObject = {
+  key: string;
+};
+
+// TODO: update this to unwrap the event / key?
+export const acceptLetterInput = (key: string) => {
+  const guessIsBad = store.get(guessIsBadAtom);
+  const guessIsGood = store.get(guessIsGoodAtom);
+  const acceptingInput = store.get(acceptingInputAtom);
+  const guessArray = store.get(guessArrayAtom);
+  const patternArray = store.get(patternArrayAtom);
+  const wordLength = store.get(wordLengthAtom);
+  const foundWords = store.get(foundWordsAtom);
+  const validWords = store.get(validWordsAtom);
+
+  // TODO: the whole animation thing is janky. timings are coupled, states are messy
+  // no typing while animation is happening
+  if (guessIsBad || guessIsGood || !acceptingInput) {
+    return;
+  }
+
+  // TODO: event.keycode is deprecated. can key or code do a range?
+  const allowedKeys = "abcdefghijklmnopqrstuvwxyz".split("");
+
+  // remove the last guessed letter
+  if (key === "Backspace" || key === "del") {
+    const lastGuessIndex = guessArray.findLastIndex((x) => x !== undefined);
+
+    store.set(guessArrayAtom, (guess) => guess.slice(0, lastGuessIndex));
+    return;
+  }
+
+  if (allowedKeys.includes(key)) {
+    // add the typed letter to the guess
+    const lettersToAdd: (string | undefined)[] = [key];
+
+    // also add pattern characters until you get to the next undefined
+    let index = guessArray.length + 1;
+    let nextPatternCharacter = patternArray[index];
+
+    while (index < wordLength && nextPatternCharacter !== undefined) {
+      lettersToAdd.push(undefined);
+      nextPatternCharacter = patternArray[++index];
+    }
+
+    store.set(guessArrayAtom, (guess) => [...guess, ...lettersToAdd]);
+
+    // TODO: semi hacky way to dedupe click/move touch events
+    store.set(acceptingInputAtom, false);
+    setTimeout(() => {
+      store.set(acceptingInputAtom, true);
+    }, 50);
+
+    // does this guess finish a word?
+    if (guessArray.length + lettersToAdd.length >= wordLength) {
+      // give time for animation to complete, and then reset the guess input
+      // TODO: should this hook into onanimationend instead?
+      setTimeout(() => store.set(guessArrayAtom, []), 300);
+
+      const nextGuessArray = [...guessArray, ...lettersToAdd];
+      const potentialWord = meldArrays(patternArray, nextGuessArray).join("");
+
+      // is it repeat?
+      if (foundWords?.includes(potentialWord)) {
+        store.set(guessIsRepeatAtom, true);
+        return;
+      }
+
+      // is it valid?
+      if (validWords.includes(potentialWord)) {
+        store.set(guessIsGoodAtom, true);
+
+        // remember, this is not a true 'set'
+        store.set(foundWordsAtom, potentialWord);
+
+        return;
+      }
+
+      //or invalid?
+      store.set(guessIsBadAtom, true);
+    }
+  }
+};
