@@ -9,17 +9,18 @@ import {
   meldArrays,
   guessIsRepeatAtom,
   acceptingInputAtom,
+  dailySeedAtom,
+  getCurrentDateString,
   wordLengthAtom,
-  WordLength,
 } from "./store";
 import { useEffect, useRef } from "react";
-import githubImgUrl from "./assets/github-mark.png";
 import { Guess } from "./Guess";
 import { Word } from "./Word";
 import { Keyboard } from "./Keyboard";
-import classNames from "classnames";
+import { Links } from "./Links";
 
 export const App = () => {
+  const [wordLength] = useAtom(wordLengthAtom);
   const [patternArray] = useAtom(patternArrayAtom);
   const [guessArray, setGuessArray] = useAtom(guessArrayAtom);
   const [guessIsGood, setGuessIsGood] = useAtom(guessIsGoodAtom);
@@ -28,7 +29,19 @@ export const App = () => {
   const [validWords] = useAtom(validWordsAtom);
   const [foundWords, addWordToFoundWords] = useAtom(foundWordsAtom);
   const [acceptingInput, setAcceptingInput] = useAtom(acceptingInputAtom);
-  const [wordLength, setWordLength] = useAtom(wordLengthAtom);
+  const [dailySeed, setDailySeed] = useAtom(dailySeedAtom);
+
+  // TODO: this is probably just for testing. Not sure if we want to blow away someone's daily puzzle at midnight?
+  useEffect(() => {
+    const handle = setInterval(() => {
+      // checking for date change
+      if (dailySeed !== getCurrentDateString()) {
+        setDailySeed(getCurrentDateString());
+      }
+    }, 1000);
+
+    return () => clearInterval(handle);
+  });
 
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -97,7 +110,7 @@ export const App = () => {
         if (validWords.includes(potentialWord)) {
           setGuessIsGood(true);
           addWordToFoundWords(potentialWord);
-          
+
           return;
         }
 
@@ -107,36 +120,9 @@ export const App = () => {
     }
   };
 
-  const changeWordLength = (length: WordLength) => {
-    setWordLength(length);
-    setGuessArray([]);
-  };
-
   return (
     <div className="page" ref={ref} tabIndex={0} onKeyDown={handleKeyDown}>
-      <div className="links vertically-centered">
-        <button
-          className={classNames({
-            "selected-button": wordLength === WordLength.Five,
-          })}
-          onClick={() => changeWordLength(WordLength.Five)}
-        >
-          5
-        </button>
-        <button
-          className={classNames({
-            "selected-button": wordLength === WordLength.Seven,
-          })}
-          onClick={() => changeWordLength(WordLength.Seven)}
-        >
-          7
-        </button>
-        <div className="link-image">
-          <a href="https://github.com/pabo/guesser">
-            <img src={githubImgUrl} />
-          </a>
-        </div>
-      </div>
+      <Links />
       <div className="main">
         <div className="description">
           Find as many words as you can that fit the pattern. Hi mom!

@@ -26,9 +26,6 @@ export const wordlistUrlAtom = atom(
   (get) => wordlistMapping[get(wordLengthAtom)]
 );
 
-// const TESTING_SEED = "asaaaaaaaaadfsadfasdf";
-const TESTING_SEED = undefined;
-
 const createRegex = (word: string, indexesToReveal: number[]) => {
   const letters = word.split("");
   const patternLetters = new Array(letters.length).fill(".");
@@ -73,15 +70,30 @@ export const choosePattern = (words: string[], seed?: string) => {
   return createRegex(word, indexesToReveal);
 };
 
+export const getCurrentDateString = () => new Date().toDateString();
 // atoms
+export const isDailyModeAtom = atom(true);
+
+export const dailySeedAtom = atom(
+  getCurrentDateString(),
+  (get, set, newValue) => {
+    console.log("getting dailySeedAtom")
+    // whenever we set this, we want to do a bunch of shit
+    set(dailySeedAtom, newValue);
+    set(foundWordsAllLengthsAtom, {} as WordLengthToFoundWordsMap);
+  }
+);
+
 export const wordsAtom = atom((get) => {
   const wordLength = get(wordLengthAtom);
   return wordlistMapping[wordLength];
 });
 
-export const patternAtom = atom((get) =>
-  choosePattern(get(wordsAtom), TESTING_SEED)
-);
+export const patternAtom = atom((get) => {
+  console.log("patternAtom");
+  return choosePattern(get(wordsAtom), get(dailySeedAtom));
+});
+
 export const patternArrayAtom = atom((get) => {
   return get(patternAtom)
     .source.split("")
@@ -109,21 +121,18 @@ export const foundWordsAllLengthsAtom = atomWithStorage(
   {} as WordLengthToFoundWordsMap
 );
 
-
 const objectOfArraysCopy = (oaa: WordLengthToFoundWordsMap) => {
   let newOaa = {} as WordLengthToFoundWordsMap;
 
   for (const [key, array] of Object.entries(oaa)) {
     // OK this is some TS grossness, but it works
     // @ts-ignore-next-line
-    const temp = { [WordLength[WordLength[parseInt(key,10)]]]: [...array]};
-    newOaa = {...newOaa, ...temp}
+    const temp = { [WordLength[WordLength[parseInt(key, 10)]]]: [...array] };
+    newOaa = { ...newOaa, ...temp };
   }
 
-  console.log("old was", oaa);
-  console.log("new is", newOaa);
   return newOaa;
-}
+};
 
 // found words is derived based on wordLength
 // TODO: the "setter" isnt actually setting the value here. It's more of a
