@@ -1,6 +1,6 @@
 # guesser
 
-This is a game where you are given some letters of a 7 letter word and have to guess as many words as you can that fit the pattern. Idea from my mom!
+This is a game where you are given some letters of a 5 or 7 letter word and have to guess as many words as you can that fit the pattern. Idea from my mom!
 
 ## Live
 
@@ -13,6 +13,11 @@ You can play here: https://pabo.github.io/guesser/
 - repeat bug
 - score?
 - hints or definitions?
+- reset found words on new day / random so that "you win" works
+
+## Ideas
+
+- mouse over xxxxx to get crossword clues of missing words
 
 ## Changelog
 

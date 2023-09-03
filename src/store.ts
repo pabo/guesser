@@ -80,7 +80,8 @@ export const wordsAtom = atom((get) => {
 });
 
 export const patternAtom = atom((get) =>
-  choosePattern(get(wordsAtom), TESTING_SEED)
+  new RegExp(".aton")
+  // choosePattern(get(wordsAtom), TESTING_SEED)
 );
 export const patternArrayAtom = atom((get) => {
   return get(patternAtom)
