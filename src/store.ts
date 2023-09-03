@@ -226,18 +226,10 @@ export type EventLikeObject = {
 
 // TODO: update this to unwrap the event / key?
 export const acceptLetterInput = (key: string) => {
-  const guessIsBad = store.get(guessIsBadAtom);
-  const guessIsGood = store.get(guessIsGoodAtom);
-  const acceptingInput = store.get(acceptingInputAtom);
-  const guessArray = store.get(guessArrayAtom);
-  const patternArray = store.get(patternArrayAtom);
-  const wordLength = store.get(wordLengthAtom);
-  const foundWords = store.get(foundWordsAtom);
-  const validWords = store.get(validWordsAtom);
 
   // TODO: the whole animation thing is janky. timings are coupled, states are messy
   // no typing while animation is happening
-  if (guessIsBad || guessIsGood || !acceptingInput) {
+  if (store.get(guessIsBadAtom) || store.get(guessIsGoodAtom) || !store.get(acceptingInputAtom)) {
     return;
   }
 
@@ -246,7 +238,7 @@ export const acceptLetterInput = (key: string) => {
 
   // remove the last guessed letter
   if (key === "Backspace" || key === "del") {
-    const lastGuessIndex = guessArray.findLastIndex((x) => x !== undefined);
+    const lastGuessIndex = store.get(guessArrayAtom).findLastIndex((x) => x !== undefined);
 
     store.set(guessArrayAtom, (guess) => guess.slice(0, lastGuessIndex));
     return;
@@ -257,12 +249,12 @@ export const acceptLetterInput = (key: string) => {
     const lettersToAdd: (string | undefined)[] = [key];
 
     // also add pattern characters until you get to the next undefined
-    let index = guessArray.length + 1;
-    let nextPatternCharacter = patternArray[index];
+    let index = store.get(guessArrayAtom).length + 1;
+    let nextPatternCharacter = store.get(patternArrayAtom)[index];
 
-    while (index < wordLength && nextPatternCharacter !== undefined) {
+    while (index < store.get(wordLengthAtom) && nextPatternCharacter !== undefined) {
       lettersToAdd.push(undefined);
-      nextPatternCharacter = patternArray[++index];
+      nextPatternCharacter = store.get(patternArrayAtom)[++index];
     }
 
     store.set(guessArrayAtom, (guess) => [...guess, ...lettersToAdd]);
@@ -274,22 +266,22 @@ export const acceptLetterInput = (key: string) => {
     }, 50);
 
     // does this guess finish a word?
-    if (guessArray.length + lettersToAdd.length >= wordLength) {
+    if (store.get(guessArrayAtom).length + lettersToAdd.length >= store.get(wordLengthAtom)) {
       // give time for animation to complete, and then reset the guess input
       // TODO: should this hook into onanimationend instead?
       setTimeout(() => store.set(guessArrayAtom, []), 300);
 
-      const nextGuessArray = [...guessArray, ...lettersToAdd];
-      const potentialWord = meldArrays(patternArray, nextGuessArray).join("");
+      const nextGuessArray = [...store.get(guessArrayAtom), ...lettersToAdd];
+      const potentialWord = meldArrays(store.get(patternArrayAtom), nextGuessArray).join("");
 
       // is it repeat?
-      if (foundWords?.includes(potentialWord)) {
+      if (store.get(foundWordsAtom)?.includes(potentialWord)) {
         store.set(guessIsRepeatAtom, true);
         return;
       }
 
       // is it valid?
-      if (validWords.includes(potentialWord)) {
+      if (store.get(validWordsAtom).includes(potentialWord)) {
         store.set(guessIsGoodAtom, true);
 
         // remember, this is not a true 'set'
