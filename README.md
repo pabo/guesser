@@ -12,6 +12,7 @@ You can play here: https://pabo.github.io/guesser/
 - clean, organize
 - repeat bug
 - score?
+- hints or definitions?
 
 ## Changelog
 
