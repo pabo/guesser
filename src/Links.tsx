@@ -13,10 +13,12 @@ export const Links = () => {
   const [wordLength, setWordLength] = useAtom(wordLengthAtom);
   const [, setGuessArray] = useAtom(guessArrayAtom);
 
+  // TODO: put this in store
   const changeWordLength = (length: WordLength) => {
-    // TODO: put this in store
     setWordLength(length);
-    setGuessArray(new Array(wordLength).fill(undefined));
+
+    // TODO: is there a way where I dont have to manually call this
+    setGuessArray(new Array(length).fill(undefined));
   };
 
   return (
