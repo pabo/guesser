@@ -1,5 +1,5 @@
 import seedrandom from "seedrandom";
-import { WordLengthToFoundWordsMap } from "./store";
+import { WordLengthToFoundWordsMap, WordLength } from "./store";
 
 // a place for functions that don't need atoms, or operate only on arguments
 
