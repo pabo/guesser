@@ -1,0 +1,51 @@
+.keyboard {
+  display: flex;
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  height: 200px;
+  background-color: black;
+  flex-direction: column;
+  touch-action: none;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+
+.row {
+  display: flex;
+  flex-grow: 1;
+  gap: 5px;
+  width: 100%;
+  padding-top: 5px;
+
+  &:last-child {
+    padding-bottom: 5px;
+  }
+}
+
+.key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #444444;
+  color: white;
+  padding: 5px;
+  flex-grow: 1;
+  /* aspect-ratio: 1/2; */
+  border-radius: 3px;
+
+  &.selected {
+    background-color: black;
+  }
+}
+
+.half-key {
+  flex: 0.5;
+  visibility: hidden;
+}
+
+.one-and-a-half-key {
+  flex: 1.5;
+}

@@ -20,6 +20,7 @@ You can play here: https://pabo.github.io/guesser/
 
 ## Changelog
 
+- CSS modules, so much clean
 - more cleaning
 - jotai store ftw, cleaned up logic
 - reset found words on new day so that "you win" works

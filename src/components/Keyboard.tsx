@@ -2,7 +2,8 @@ import { useCallback } from "react";
 import { useAtom } from "jotai";
 import classNames from "classnames";
 import throttle from "lodash/throttle";
-import { acceptLetterInput, selectedKeyAtom } from "./store";
+import { acceptLetterInput, selectedKeyAtom } from "../store";
+import styles from "./Keyboard.module.css";
 
 const keysTopRow = "QWERTYUIOP".split("");
 const keysMiddleRow = " ASDFGHJKL ".split("");
@@ -49,7 +50,7 @@ export const Keyboard = () => {
 
   return (
     <div
-      className="keyboard"
+      className={styles.keyboard}
       onTouchStart={handleTouchStart}
       onTouchMove={throttledTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -69,7 +70,7 @@ type KeyboardRowProps = {
 
 const KeyboardRow: React.FC<KeyboardRowProps> = ({ keys, position }) => {
   return (
-    <div className={`flex row ${position}`}>
+    <div className={`${styles.row} ${position}`}>
       {position === "bottom" && <Key value="ENTER" />}
       {keys.map((key, index) => (
         <Key key={index} value={key} />
@@ -88,17 +89,16 @@ const Key: React.FC<KeyProps> = ({ value }) => {
   return (
     <div
       data-key={value.toLowerCase()}
-      className={classNames({
-        key: true,
-        "half-key": value === " ", // spacers in row 2
-        "one-and-a-half-key": value.length !== 1, // enter and delete in row 3
-        selected: selectedKey?.toLowerCase() === value.toLowerCase(),
+      className={classNames(styles.key, {
+        [styles.halfKey]: value === " ", // spacers in row 2
+        [styles.oneAndAHalfKey]: value.length !== 1, // enter and delete in row 3
+        [styles.selected]: selectedKey?.toLowerCase() === value.toLowerCase(),
       })}
       onClick={() => {
         acceptLetterInput(value.toLowerCase());
       }}
     >
-      <div className="key-content">{value}</div>
+      <div>{value}</div>
     </div>
   );
 };

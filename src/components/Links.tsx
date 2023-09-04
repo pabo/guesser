@@ -1,12 +1,14 @@
 import classNames from "classnames";
-import githubImgUrl from "./assets/github-mark.png";
+import githubImgUrl from "../assets/github-mark.png";
 import {
   WordLength,
   guessArrayAtom,
   isDailyModeAtom,
   wordLengthAtom,
-} from "./store";
+} from "../store";
 import { useAtom } from "jotai";
+// import style from "./Links.module.css?inline";
+import styles from "./Links.module.css";
 
 export const Links = () => {
   const [isDailyMode, setIsDailyMode] = useAtom(isDailyModeAtom);
@@ -22,7 +24,7 @@ export const Links = () => {
   };
 
   return (
-    <div className="links vertically-centered">
+    <div className={styles.links}>
       <Button
         text="Daily"
         isSelected={isDailyMode}
@@ -43,7 +45,7 @@ export const Links = () => {
         isSelected={wordLength === WordLength.Seven}
         clickHandler={() => changeWordLength(WordLength.Seven)}
       />
-      <div className="link-image">
+      <div className={styles.linkImage}>
         <a href="https://github.com/pabo/guesser">
           <img src={githubImgUrl} />
         </a>
@@ -61,9 +63,7 @@ type ButtonProps = {
 const Button: React.FC<ButtonProps> = ({ text, isSelected, clickHandler }) => {
   return (
     <button
-      className={classNames({
-        "selected-button": isSelected,
-      })}
+      className={classNames(styles.button, { [styles.selected]: isSelected })}
       onClick={clickHandler}
     >
       {text}

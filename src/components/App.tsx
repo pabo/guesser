@@ -1,10 +1,11 @@
 import { useEffect, useRef } from "react";
 import { useAtom } from "jotai";
-import { validWordsAtom, acceptLetterInput } from "./store";
+import { validWordsAtom, acceptLetterInput } from "../store";
 import { Guess } from "./Guess";
-import { Word } from "./Word";
+import { Words } from "./Words";
 import { Keyboard } from "./Keyboard";
 import { Links } from "./Links";
+import styles from "./App.module.css";
 
 export const App = () => {
   const [validWords] = useAtom(validWordsAtom);
@@ -16,7 +17,7 @@ export const App = () => {
 
   return (
     <div
-      className="page"
+      className={styles.page}
       ref={ref}
       tabIndex={0}
       onKeyDown={(e) => {
@@ -24,16 +25,10 @@ export const App = () => {
       }}
     >
       <Links />
-      <div className="main">
-        <div className="description">
-          Find as many words as you can that fit the pattern. Hi mom!
-        </div>
+      <div className={styles.main}>
+        <div>Find as many words as you can that fit the pattern. Hi mom!</div>
         <Guess />
-        <div className="words">
-          {validWords.map((word, index) => (
-            <Word key={index} word={word} />
-          ))}
-        </div>
+        <Words words={validWords} />
         <Keyboard />
       </div>
     </div>

@@ -2,12 +2,13 @@ import { useAtom } from "jotai";
 import {
   guessIsGoodAtom,
   guessIsBadAtom,
-  guessArrayAtom,
   combinedGuessAndPatternArrayAtom,
   patternArrayAtom,
   gameOverAtom,
-} from "./store";
+  fistUndefinedIndexInCombinedAtom,
+} from "../store";
 import classNames from "classnames";
+import styles from "./Guess.module.css";
 
 export const Guess = () => {
   const [guessIsGood, setGuessIsGood] = useAtom(guessIsGoodAtom);
@@ -17,11 +18,9 @@ export const Guess = () => {
 
   return (
     <h2
-      className={classNames({
-        flex: true,
-        guess: true,
-        "good-guess": guessIsGood,
-        "bad-guess": guessIsBad,
+      className={classNames(styles.guess, {
+        [styles.goodGuess]: guessIsGood,
+        [styles.badGuess]: guessIsBad,
       })}
       onAnimationEnd={() => {
         setGuessIsGood(false);
@@ -45,16 +44,15 @@ type GuessLetterProps = {
 };
 
 export const GuessLetter: React.FC<GuessLetterProps> = ({ letter, index }) => {
-  const [guessArray] = useAtom(guessArrayAtom);
   const [patternArray] = useAtom(patternArrayAtom);
+  const [firstUndefinedIndex] = useAtom(fistUndefinedIndexInCombinedAtom);
 
   return (
     <div
-      className={classNames({
-        "guess-letter": true,
-        "guess-filled-letter": index < guessArray.length,
-        "guess-next-letter": index === guessArray.length,
-        "guess-fixed-letter": patternArray[index],
+      className={classNames(styles.guessLetter, {
+        [styles.guessFilledLetter]: index < firstUndefinedIndex,
+        [styles.guessNextLetter]: index === firstUndefinedIndex,
+        [styles.guessFixedLetter]: patternArray[index],
       })}
     >
       {letter || "\u00A0" /* &nbsp; */}

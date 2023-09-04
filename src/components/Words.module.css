@@ -1,0 +1,43 @@
+.words {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.word {
+  font-weight: bold;
+  margin: 2px;
+  width: 100px;
+  text-align: center;
+
+  &.faded {
+    opacity: 0.15;
+  }
+
+  &.repeat {
+    animation: repeat 0.3s;
+  }
+}
+
+@keyframes repeat {
+  0% {
+    transform: scale(1);
+    color: rgb(187, 141, 17);
+  }
+  25% {
+    transform: scale(1.2);
+    color: rgb(187, 141, 17);
+  }
+  50% {
+    transform: scale(1);
+    color: rgb(187, 141, 17);
+  }
+  75% {
+    transform: scale(1.2);
+    color: rgb(187, 141, 17);
+  }
+  100% {
+    transform: scale(1);
+    color: rgb(187, 141, 17);
+  }
+}

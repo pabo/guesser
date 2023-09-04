@@ -5,7 +5,22 @@ import {
   foundWordsAtom,
   guessIsRepeatAtom,
   wordLengthAtom,
-} from "./store";
+} from "../store";
+import styles from "./Words.module.css";
+
+type WordsProps = {
+  words: string[];
+};
+
+export const Words: React.FC<WordsProps> = ({ words }) => {
+  return (
+    <div className={styles.words}>
+      {words.map((word, index) => (
+        <Word key={index} word={word} />
+      ))}
+    </div>
+  );
+};
 
 type WordProps = {
   word: string;
@@ -26,9 +41,10 @@ export const Word: React.FC<WordProps> = ({ word }) => {
         setGuessIsRepeat(false);
       }}
       className={classNames({
-        word: true,
-        faded: !isFound,
-        repeat: guessIsRepeat && word === combinedGuessAndPattern.join(""),
+        [styles.word]: true,
+        [styles.faded]: !isFound,
+        [styles.repeat]:
+          guessIsRepeat && word === combinedGuessAndPattern.join(""),
       })}
     >
       {isFound ? word : placeholder}{" "}

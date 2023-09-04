@@ -1,0 +1,39 @@
+.links {
+  display: flex;
+  justify-content: flex-end;
+  vertical-align: middle;
+  gap: 5px;
+  padding: 5px;
+}
+
+.button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.4em 1em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+
+  &:hover {
+    border-color: #646cff;
+  }
+
+  &.selected {
+    background-color: rgb(150, 175, 150);
+  }
+
+  @media (prefers-color-scheme: light) {
+    background-color: #f9f9f9;
+  }
+}
+
+.link-image {
+  max-height: 2em;
+
+  & img {
+    max-height: 2em;
+  }
+}

@@ -8,7 +8,6 @@ import {
   getIndexOfFirstUndefined,
   objectOfArraysCopy,
 } from "./utils";
-import { last } from "lodash";
 
 // We pick one target word at random, then create a pattern that matches the target word
 // and several others. We give the player the pattern so that they can guess all the matching words
@@ -45,7 +44,6 @@ export const isDailyModeAtom = atom(true);
 export const dailySeedAtom = atom(
   getCurrentDateString(),
   (_get, set, newValue) => {
-    console.log("getting dailySeedAtom");
     // whenever we set this, we want to do a bunch of shit
     set(dailySeedAtom, newValue);
     set(foundWordsAllLengthsAtom, {} as WordLengthToFoundWordsMap);
@@ -194,8 +192,6 @@ export const acceptLetterInput = (keyPossiblyUpperCased: string) => {
       .get(guessArrayAtom)
       .findLastIndex((x) => x !== undefined);
 
-    console.log("guess", store.get(guessArrayAtom))
-    console.log("lastGuessIndex", lastGuessIndex)
 
     // @ts-ignore-next-line
     store.set(guessArrayAtom, (guess) => guess.with(lastGuessIndex, undefined));
