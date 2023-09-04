@@ -14,8 +14,9 @@ export const Links = () => {
   const [, setGuessArray] = useAtom(guessArrayAtom);
 
   const changeWordLength = (length: WordLength) => {
+    // TODO: put this in store
     setWordLength(length);
-    setGuessArray([]);
+    setGuessArray(new Array(wordLength).fill(undefined));
   };
 
   return (
@@ -25,11 +26,11 @@ export const Links = () => {
         isSelected={isDailyMode}
         clickHandler={() => setIsDailyMode(true)}
       />
-      <Button
+      {/* <Button
         text="Random"
         isSelected={!isDailyMode}
         clickHandler={() => setIsDailyMode(false)}
-      />
+      /> */}
       <Button
         text={WordLength.Five.toString()}
         isSelected={wordLength === WordLength.Five}
