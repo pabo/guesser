@@ -1,8 +1,8 @@
-import { acceptLetterInput, selectedKeyAtom } from "./store";
+import { useCallback } from "react";
 import { useAtom } from "jotai";
 import classNames from "classnames";
 import throttle from "lodash/throttle";
-import { useCallback } from "react";
+import { acceptLetterInput, selectedKeyAtom } from "./store";
 
 const keysTopRow = "QWERTYUIOP".split("");
 const keysMiddleRow = " ASDFGHJKL ".split("");
@@ -18,9 +18,6 @@ export const Keyboard = () => {
   };
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    // stops scrolling
-    // e.preventDefault();
-
     const touch = e.changedTouches[0];
 
     const elementsAtPoint = document.elementsFromPoint(

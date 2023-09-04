@@ -3,7 +3,7 @@ import {
   guessIsGoodAtom,
   guessIsBadAtom,
   guessArrayAtom,
-  combinedGuessAndPatternAtom,
+  combinedGuessAndPatternArrayAtom,
   patternArrayAtom,
   gameOverAtom,
 } from "./store";
@@ -12,7 +12,7 @@ import classNames from "classnames";
 export const Guess = () => {
   const [guessIsGood, setGuessIsGood] = useAtom(guessIsGoodAtom);
   const [guessIsBad, setGuessIsBad] = useAtom(guessIsBadAtom);
-  const [combinedGuessAndPattern] = useAtom(combinedGuessAndPatternAtom);
+  const [combinedGuessAndPattern] = useAtom(combinedGuessAndPatternArrayAtom);
   const [gameOver] = useAtom(gameOverAtom);
 
   return (
@@ -33,7 +33,7 @@ export const Guess = () => {
         combinedGuessAndPattern.map(
           (letter: string | undefined, index: number) => {
             return <GuessLetter key={index} letter={letter} index={index} />;
-          },
+          }
         )}
     </h2>
   );

@@ -1,6 +1,6 @@
+import { useAtom } from "jotai";
 import classNames from "classnames";
 import { WordLength, wordLengthAtom } from "./store";
-import { useAtom } from "jotai";
 
 type SettingsProps = {
   isOpen: boolean;

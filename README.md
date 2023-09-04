@@ -9,18 +9,19 @@ You can play here: https://pabo.github.io/guesser/
 ## TODOs
 
 - daily vs random
-- clean, organize
 - repeat bug
 - score?
 - hints or definitions?
-- reset found words on new day / random so that "you win" works
 
 ## Ideas
 
 - mouse over xxxxx to get crossword clues of missing words
+- pare down list of words according to onelook commonness score
 
 ## Changelog
 
+- jotai store ftw, cleaned up logic
+- reset found words on new day so that "you win" works
 - word length button
 - loading the wordlist in the main bundle, with no async atoms
 - added "You win!"

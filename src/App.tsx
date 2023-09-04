@@ -1,11 +1,6 @@
-import { useAtom } from "jotai";
-import {
-  validWordsAtom,
-  dailySeedAtom,
-  getCurrentDateString,
-  acceptLetterInput,
-} from "./store";
 import { useEffect, useRef } from "react";
+import { useAtom } from "jotai";
+import { validWordsAtom, acceptLetterInput } from "./store";
 import { Guess } from "./Guess";
 import { Word } from "./Word";
 import { Keyboard } from "./Keyboard";
@@ -13,19 +8,6 @@ import { Links } from "./Links";
 
 export const App = () => {
   const [validWords] = useAtom(validWordsAtom);
-  const [dailySeed, setDailySeed] = useAtom(dailySeedAtom);
-
-  // TODO: this is probably just for testing. Not sure if we want to blow away someone's daily puzzle at midnight?
-  useEffect(() => {
-    const handle = setInterval(() => {
-      // checking for date change
-      if (dailySeed !== getCurrentDateString()) {
-        setDailySeed(getCurrentDateString());
-      }
-    }, 1000);
-
-    return () => clearInterval(handle);
-  });
 
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {

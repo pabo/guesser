@@ -4,29 +4,13 @@ import { words as words5 } from "../wordlists/wordle";
 import { words as words7 } from "../wordlists/enable7";
 import seedrandom from "seedrandom";
 
-// TODO: How do atoms know to connect to the default store? If I don't use the default store, do I have to manually attach all atoms to it?
-const store = getDefaultStore();
-
-// const store = createStore()
-
-// const countAtom = atom(0)
-// myStore.set(countAtom, 1)
-// const unsub = myStore.sub(countAtom, () => {
-//   console.log('countAtom value is changed to', myStore.get(countAtom))
-// })
-// // unsub() to unsubscribe
-
-// const Root = () => (
-//   <Provider store={myStore}>
-//     <App />
-//   </Provider>
-// )
-
 // We pick one target word at random, then create a pattern that matches the target word
 // and several others. We give the player the pattern so that they can guess all the matching words
 
-export const LETTERS_TO_REVEAL = 2;
 export const MAX_NUMBER_OF_VALID_WORDS = 45;
+
+// TODO: How do atoms know to connect to the default store? If I don't use the default store, do I have to manually attach all atoms to it?
+const store = getDefaultStore();
 
 export enum WordLength {
   Five = 5,
@@ -102,32 +86,47 @@ export const dailySeedAtom = atom(
   }
 );
 
+// TODO: this is probably just for testing. Not sure if we want to blow away someone's daily puzzle at midnight?
+// check for date change
+setInterval(() => {
+  if (store.get(dailySeedAtom) !== getCurrentDateString()) {
+    store.set(dailySeedAtom, getCurrentDateString());
+  }
+}, 60000);
+
 export const wordsAtom = atom((get) => {
   const wordLength = get(wordLengthAtom);
   return wordlistMapping[wordLength];
 });
 
-export const patternAtom = atom((get) => {
+export const patternRegexAtom = atom((get) => {
   return choosePattern(get(wordsAtom), get(dailySeedAtom));
 });
 
 export const patternArrayAtom = atom((get) => {
-  return get(patternAtom)
+  return get(patternRegexAtom)
     .source.split("")
     .map((x) => (x === "." ? undefined : x));
 });
 
+// TODO: BUG can I initialize this with leading nulls if they should be there
+export const guessArrayAtom = atom<(string | undefined)[]>([]);
+
+// we maintain two separate sparse arrays for the pattern and the guess, above.
+// this is the melded array
+export const combinedGuessAndPatternArrayAtom = atom((get) => {
+  const patternArray = get(patternArrayAtom);
+  const guessArray = get(guessArrayAtom);
+
+  return meldArrays(patternArray, guessArray);
+});
+
 export const validWordsAtom = atom((get) => {
   const words = get(wordsAtom);
-  const pattern = get(patternAtom);
+  const pattern = get(patternRegexAtom);
 
   return words.filter((word) => pattern.exec(word));
 });
-
-// game progress
-
-// TODO: BUG can I initialize this with leading nulls if they should be there
-export const guessArrayAtom = atom<(string | undefined)[]>([]);
 
 type WordLengthToFoundWordsMap = {
   [key in WordLength]: string[];
@@ -202,14 +201,6 @@ export const meldArrays: <T, U>(array1: T[], array2: U[]) => (T | U)[] = (
     return value1 ?? value2;
   });
 };
-
-export const combinedGuessAndPatternAtom = atom((get) => {
-  const patternArray = get(patternArrayAtom);
-  const guessArray = get(guessArrayAtom);
-
-  return meldArrays(patternArray, guessArray);
-});
-
 // const date = new Date();
 // export const seedAtom = atomWithStorage("seed", `${date.getFullYear()}${date.getMonth()}${date.getDate()}`)
 
@@ -220,78 +211,92 @@ export const selectedKeyAtom = atom<string | null>(null);
 // This allows us to temporarily disable keyboard input, for deduping click and move
 export const acceptingInputAtom = atom(true);
 
-export type EventLikeObject = {
-  key: string;
-};
-
-// TODO: update this to unwrap the event / key?
-export const acceptLetterInput = (key: string) => {
+// accepts single letter keys, 'Backspace', 'Del, and 'Enter'
+export const acceptLetterInput = (keyPossiblyUpperCased: string) => {
+  const key = keyPossiblyUpperCased.toLowerCase();
 
   // TODO: the whole animation thing is janky. timings are coupled, states are messy
   // no typing while animation is happening
-  if (store.get(guessIsBadAtom) || store.get(guessIsGoodAtom) || !store.get(acceptingInputAtom)) {
+  if (
+    store.get(guessIsBadAtom) ||
+    store.get(guessIsGoodAtom) ||
+    !store.get(acceptingInputAtom)
+  ) {
     return;
   }
 
-  // TODO: event.keycode is deprecated. can key or code do a range?
-  const allowedKeys = "abcdefghijklmnopqrstuvwxyz".split("");
+  const allowedKeys = [
+    "backspace",
+    "del",
+    ..."abcdefghijklmnopqrstuvwxyz".split(""),
+  ];
+
+  if (!allowedKeys.includes(key)) {
+    return;
+  }
 
   // remove the last guessed letter
-  if (key === "Backspace" || key === "del") {
-    const lastGuessIndex = store.get(guessArrayAtom).findLastIndex((x) => x !== undefined);
+  if (key === "backspace" || key === "del") {
+    const lastGuessIndex = store
+      .get(guessArrayAtom)
+      .findLastIndex((x) => x !== undefined);
 
     store.set(guessArrayAtom, (guess) => guess.slice(0, lastGuessIndex));
     return;
   }
 
-  if (allowedKeys.includes(key)) {
-    // add the typed letter to the guess
-    const lettersToAdd: (string | undefined)[] = [key];
+  // add the letter to the guess
+  const lettersToAdd: (string | undefined)[] = [key];
 
-    // also add pattern characters until you get to the next undefined
-    let index = store.get(guessArrayAtom).length + 1;
-    let nextPatternCharacter = store.get(patternArrayAtom)[index];
+  // also add pattern characters until you get to the next undefined
+  let index = store.get(guessArrayAtom).length + 1;
+  let nextPatternCharacter = store.get(patternArrayAtom)[index];
 
-    while (index < store.get(wordLengthAtom) && nextPatternCharacter !== undefined) {
-      lettersToAdd.push(undefined);
-      nextPatternCharacter = store.get(patternArrayAtom)[++index];
+  while (
+    index < store.get(wordLengthAtom) &&
+    nextPatternCharacter !== undefined
+  ) {
+    lettersToAdd.push(undefined);
+    nextPatternCharacter = store.get(patternArrayAtom)[++index];
+  }
+
+  store.set(guessArrayAtom, (guess) => [...guess, ...lettersToAdd]);
+
+  // TODO: semi hacky way to dedupe click/move touch events
+  store.set(acceptingInputAtom, false);
+  setTimeout(() => {
+    store.set(acceptingInputAtom, true);
+  }, 50);
+
+  // does this guess finish a word?
+  if (store.get(guessArrayAtom).length >= store.get(wordLengthAtom)) {
+    // give time for animation to complete, and then reset the guess input
+    // TODO: should this hook into onanimationend instead?
+    setTimeout(() => store.set(guessArrayAtom, []), 300);
+
+    const nextGuessArray = [...store.get(guessArrayAtom), ...lettersToAdd];
+    const potentialWord = meldArrays(
+      store.get(patternArrayAtom),
+      nextGuessArray
+    ).join("");
+
+    // is it repeat?
+    if (store.get(foundWordsAtom)?.includes(potentialWord)) {
+      store.set(guessIsRepeatAtom, true);
+      return;
     }
 
-    store.set(guessArrayAtom, (guess) => [...guess, ...lettersToAdd]);
+    // is it valid?
+    if (store.get(validWordsAtom).includes(potentialWord)) {
+      store.set(guessIsGoodAtom, true);
 
-    // TODO: semi hacky way to dedupe click/move touch events
-    store.set(acceptingInputAtom, false);
-    setTimeout(() => {
-      store.set(acceptingInputAtom, true);
-    }, 50);
+      // remember, this is not a true 'set'
+      store.set(foundWordsAtom, potentialWord);
 
-    // does this guess finish a word?
-    if (store.get(guessArrayAtom).length + lettersToAdd.length >= store.get(wordLengthAtom)) {
-      // give time for animation to complete, and then reset the guess input
-      // TODO: should this hook into onanimationend instead?
-      setTimeout(() => store.set(guessArrayAtom, []), 300);
-
-      const nextGuessArray = [...store.get(guessArrayAtom), ...lettersToAdd];
-      const potentialWord = meldArrays(store.get(patternArrayAtom), nextGuessArray).join("");
-
-      // is it repeat?
-      if (store.get(foundWordsAtom)?.includes(potentialWord)) {
-        store.set(guessIsRepeatAtom, true);
-        return;
-      }
-
-      // is it valid?
-      if (store.get(validWordsAtom).includes(potentialWord)) {
-        store.set(guessIsGoodAtom, true);
-
-        // remember, this is not a true 'set'
-        store.set(foundWordsAtom, potentialWord);
-
-        return;
-      }
-
-      //or invalid?
-      store.set(guessIsBadAtom, true);
+      return;
     }
+
+    //or invalid?
+    store.set(guessIsBadAtom, true);
   }
 };
