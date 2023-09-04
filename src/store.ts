@@ -1,7 +1,7 @@
 import { atom, getDefaultStore } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { words as words5 } from "../wordlists/wordle";
-import { words as words7 } from "../wordlists/enable7";
+// import { words as words5 } from "../wordlists/wordle";
+// import { words as words7 } from "../wordlists/enable7";
 import {
   choosePattern,
   combineArrays,
@@ -13,6 +13,7 @@ import {
 // and several others. We give the player the pattern so that they can guess all the matching words
 
 export const MAX_NUMBER_OF_VALID_WORDS = 45;
+
 
 // TODO: How do atoms know to connect to the default store? If I don't use the default store, do I have to manually attach all atoms to it?
 const store = getDefaultStore();
@@ -26,19 +27,37 @@ export type WordLengthToFoundWordsMap = {
   [key in WordLength]: string[];
 };
 
-const wordlistMapping: { [key in WordLength]: string[] } = {
-  [WordLength.Five]: words5,
-  [WordLength.Seven]: words7,
+// default 5 letter length
+// export const wordLengthAtom = atomWithStorage("wordLength", WordLength.Five);
+export const wordLengthAtom = atom(WordLength.Five);
+// TODO: jotai bug? immediately, this is the default value, instead of the stored value
+console.log("length is", store.get(wordLengthAtom))
+
+export const populateWordList = () => {
+  const length = store.get(wordLengthAtom);
+  console.log("populating, ", length)
+
+  if (length === WordLength.Five) {
+    import("../wordlists/wordle").then(({ words5 }) => {
+      store.set(wordsAtom, words5);
+    });
+  } else {
+    import("../wordlists/enable7").then(({ words7 }) => {
+      store.set(wordsAtom, words7);
+    });
+  }
+}
+
+export const changeWordLength = async (length: WordLength) => {
+  store.set(wordLengthAtom, length);
+
+  populateWordList();
+
+  // TODO: is there a way where I dont have to manually call this
+  store.set(guessArrayAtom, new Array(length).fill(undefined));
 };
 
-// default 5 letter length
-export const wordLengthAtom = atomWithStorage("wordLength", WordLength.Five);
-export const wordlistUrlAtom = atom(
-  (get) => wordlistMapping[get(wordLengthAtom)]
-);
-
 export const getCurrentDateString = () => new Date().toDateString();
-// atoms
 export const isDailyModeAtom = atom(true);
 
 export const dailySeedAtom = atom(
@@ -58,10 +77,7 @@ setInterval(() => {
   }
 }, 60000);
 
-export const wordsAtom = atom((get) => {
-  const wordLength = get(wordLengthAtom);
-  return wordlistMapping[wordLength];
-});
+export const wordsAtom = atom<string[]>([]);
 
 export const patternRegexAtom = atom((get) => {
   return choosePattern(
@@ -192,7 +208,6 @@ export const acceptLetterInput = (keyPossiblyUpperCased: string) => {
       .get(guessArrayAtom)
       .findLastIndex((x) => x !== undefined);
 
-
     // @ts-ignore-next-line
     store.set(guessArrayAtom, (guess) => guess.with(lastGuessIndex, undefined));
     return;
@@ -244,3 +259,9 @@ export const acceptLetterInput = (keyPossiblyUpperCased: string) => {
     store.set(guessIsBadAtom, true);
   }
 };
+
+export const init = () => {
+  populateWordList();
+}
+
+init();

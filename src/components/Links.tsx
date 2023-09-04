@@ -2,26 +2,16 @@ import classNames from "classnames";
 import githubImgUrl from "../assets/github-mark.png";
 import {
   WordLength,
-  guessArrayAtom,
+  changeWordLength,
   isDailyModeAtom,
   wordLengthAtom,
 } from "../store";
 import { useAtom } from "jotai";
-// import style from "./Links.module.css?inline";
 import styles from "./Links.module.css";
 
 export const Links = () => {
   const [isDailyMode, setIsDailyMode] = useAtom(isDailyModeAtom);
-  const [wordLength, setWordLength] = useAtom(wordLengthAtom);
-  const [, setGuessArray] = useAtom(guessArrayAtom);
-
-  // TODO: put this in store
-  const changeWordLength = (length: WordLength) => {
-    setWordLength(length);
-
-    // TODO: is there a way where I dont have to manually call this
-    setGuessArray(new Array(length).fill(undefined));
-  };
+  const [wordLength] = useAtom(wordLengthAtom);
 
   return (
     <div className={styles.links}>

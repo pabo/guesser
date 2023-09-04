@@ -24,7 +24,7 @@ export const choosePattern = (
 ) => {
   const rng = seedrandom(seed);
 
-  const word = words[Math.floor(rng() * words.length) + 1];
+  const word = words[Math.floor(rng() * words.length) + 1] || "";
 
   const indexesToReveal: number[] = [];
   let regex: RegExp;
