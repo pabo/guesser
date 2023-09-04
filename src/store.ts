@@ -1,7 +1,5 @@
 import { atom, getDefaultStore } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-// import { words as words5 } from "../wordlists/wordle";
-// import { words as words7 } from "../wordlists/enable7";
 import {
   choosePattern,
   combineArrays,
@@ -14,9 +12,17 @@ import {
 
 export const MAX_NUMBER_OF_VALID_WORDS = 45;
 
-
-// TODO: How do atoms know to connect to the default store? If I don't use the default store, do I have to manually attach all atoms to it?
 const store = getDefaultStore();
+
+// bump this version to force a localStorage wipe on next client page load
+const CURRENT_VERSION = "1";
+
+const versionKey = "version"
+const version = localStorage.getItem(versionKey);
+if (!version || version !== CURRENT_VERSION) {
+  localStorage.clear();
+}
+localStorage.setItem(versionKey, CURRENT_VERSION);
 
 export enum WordLength {
   Five = 5,
@@ -28,8 +34,8 @@ export type WordLengthToFoundWordsMap = {
 };
 
 // default 5 letter length
-// export const wordLengthAtom = atomWithStorage("wordLength", WordLength.Five);
 export const wordLengthAtom = atom(WordLength.Five);
+// export const wordLengthAtom = atomWithStorage("wordLength", WordLength.Five);
 // TODO: jotai bug? immediately, this is the default value, instead of the stored value
 console.log("length is", store.get(wordLengthAtom))
 
