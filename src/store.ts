@@ -2,7 +2,12 @@ import { atom, getDefaultStore } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { words as words5 } from "../wordlists/wordle";
 import { words as words7 } from "../wordlists/enable7";
-import { choosePattern, getIndexOfFirstUndefined } from "./utils";
+import {
+  choosePattern,
+  combineArrays,
+  getIndexOfFirstUndefined,
+  objectOfArraysCopy,
+} from "./utils";
 
 // We pick one target word at random, then create a pattern that matches the target word
 // and several others. We give the player the pattern so that they can guess all the matching words
@@ -16,6 +21,10 @@ export enum WordLength {
   Five = 5,
   Seven = 7,
 }
+
+export type WordLengthToFoundWordsMap = {
+  [key in WordLength]: string[];
+};
 
 const wordlistMapping: { [key in WordLength]: string[] } = {
   [WordLength.Five]: words5,
@@ -74,30 +83,34 @@ export const guessArrayAtom = atom(
   new Array(store.get(wordLengthAtom)).fill(undefined)
 );
 
+// we want to add the letter to the guess aray in slot that corresponds to the first
+// undefined slot in the combined array
 const addLetterToGuess = (letter: string) => {
   const index = store.get(fistUndefinedIndexInCombinedAtom);
   const array = store.get(guessArrayAtom);
 
   store.set(
     guessArrayAtom,
-    // @ts-ignore-next-line array.with
+    // @ts-ignore-next-line array.with is fine!
     array.length === 0 ? [letter] : array.with(index, letter)
   );
 };
 
 // we maintain two separate sparse arrays for the pattern and the guess, above.
-// this is the melded array
+// this is the combined array
 export const combinedGuessAndPatternArrayAtom = atom((get) => {
   const patternArray = get(patternArrayAtom);
   const guessArray = get(guessArrayAtom);
 
-  return meldArrays(patternArray, guessArray) || [];
+  return combineArrays(patternArray, guessArray) || [];
 });
 
 export const fistUndefinedIndexInCombinedAtom = atom((get) =>
   getIndexOfFirstUndefined(get(combinedGuessAndPatternArrayAtom))
 );
 
+// The list of words that fit the given pattern,
+// all of which the user is ultimately trying to guess
 export const validWordsAtom = atom((get) => {
   const words = get(wordsAtom);
   const pattern = get(patternRegexAtom);
@@ -105,28 +118,10 @@ export const validWordsAtom = atom((get) => {
   return words.filter((word) => pattern.exec(word));
 });
 
-type WordLengthToFoundWordsMap = {
-  [key in WordLength]: string[];
-};
-
 export const foundWordsAllLengthsAtom = atomWithStorage(
   "foundWordsAllLengths",
   {} as WordLengthToFoundWordsMap
 );
-
-const objectOfArraysCopy = (oaa: WordLengthToFoundWordsMap) => {
-  let newOaa = {} as WordLengthToFoundWordsMap;
-
-  for (const [key, array] of Object.entries(oaa)) {
-    // OK this is some TS grossness, but it works
-    // eslint-disable-next-line
-    // @ts-ignore-next-line
-    const temp = { [WordLength[WordLength[parseInt(key, 10)]]]: [...array] };
-    newOaa = { ...newOaa, ...temp };
-  }
-
-  return newOaa;
-};
 
 // found words is derived based on wordLength
 // TODO: the "setter" isnt actually setting the value here. It's more of a
@@ -164,24 +159,6 @@ export const guessIsGoodAtom = atom(false);
 export const guessIsBadAtom = atom(false);
 export const guessIsRepeatAtom = atom(false);
 
-// combines arrays by masking the second onto the first. nullish values in earlier arrays are filled with the values
-// from later arrays
-//
-// result array will have same length as first array.
-export const meldArrays: (
-  array1: (string | undefined)[],
-  array2: (string | undefined)[]
-) => (string | undefined)[] = (array1, array2) => {
-  return array1.map((value1, index) => {
-    const value2 = array2[index];
-
-    return value1 ?? value2 ?? undefined;
-  });
-};
-// const date = new Date();
-// export const seedAtom = atomWithStorage("seed", `${date.getFullYear()}${date.getMonth()}${date.getDate()}`)
-
-// Keyboard
 // TODO: this could have been a state honestly. with component composition?
 export const selectedKeyAtom = atom<string | null>(null);
 
@@ -204,7 +181,8 @@ export const acceptLetterInput = (keyPossiblyUpperCased: string) => {
   if (
     store.get(guessIsBadAtom) ||
     store.get(guessIsGoodAtom) ||
-    !store.get(acceptingInputAtom || !allowedKeys.includes(key))
+    !store.get(acceptingInputAtom) ||
+    !allowedKeys.includes(key)
   ) {
     return;
   }
@@ -220,8 +198,6 @@ export const acceptLetterInput = (keyPossiblyUpperCased: string) => {
   }
 
   // handle letters
-
-  // add the letter to the guess
   addLetterToGuess(key);
 
   // TODO: semi hacky way to dedupe click/move touch events
