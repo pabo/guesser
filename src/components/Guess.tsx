@@ -5,7 +5,7 @@ import {
   combinedGuessAndPatternArrayAtom,
   patternArrayAtom,
   gameOverAtom,
-  fistUndefinedIndexInCombinedAtom,
+  firstUndefinedIndexInCombinedAtom,
   isGivenUpAtom,
 } from "../store";
 import classNames from "classnames";
@@ -53,7 +53,7 @@ type GuessLetterProps = {
 
 export const GuessLetter: React.FC<GuessLetterProps> = ({ letter, index }) => {
   const [patternArray] = useAtom(patternArrayAtom);
-  const [firstUndefinedIndex] = useAtom(fistUndefinedIndexInCombinedAtom);
+  const [firstUndefinedIndex] = useAtom(firstUndefinedIndexInCombinedAtom);
 
   return (
     <div

@@ -12,7 +12,8 @@ import { getDataMuseWords } from "./api";
 // and several others. We give the player the pattern so that they can guess all the matching words
 
 export const MAX_NUMBER_OF_VALID_WORDS = 45;
-export const MINIMUM_NGRAM_SCORE = .01;
+export const MINIMUM_NGRAM_SCORE = .01; // .01 occurrences per million words (google ngram)
+const CHECK_FOR_NEW_DAY_INTERVAL = 60000; // 1 minute
 
 const store = getDefaultStore();
 
@@ -39,11 +40,9 @@ export type WordLengthToFoundWordsMap = {
 export const wordLengthAtom = atom(WordLength.Five);
 // export const wordLengthAtom = atomWithStorage("wordLength", WordLength.Five);
 // TODO: jotai bug? immediately, this is the default value, instead of the stored value
-console.log("length is", store.get(wordLengthAtom));
 
 export const populateWordList = () => {
   const length = store.get(wordLengthAtom);
-  console.log("populating, ", length);
 
   if (length === WordLength.Five) {
     import("../wordlists/wordle").then(({ words5 }) => {
@@ -71,23 +70,24 @@ export const getCurrentDateString = () => new Date().toDateString();
 export const isDailyModeAtom = atom(true);
 export const isGivenUpAtom = atomWithStorage("isGivenUp", false);
 
-export const dailySeedAtom = atom(
-  getCurrentDateString(),
-  (_get, set, newValue) => {
-    // whenever we set this, we want to do a bunch of shit
-    set(dailySeedAtom, newValue);
-    set(foundWordsAllLengthsAtom, {} as WordLengthToFoundWordsMap);
-    set(isGivenUpAtom, false);
-  }
-);
 
-// TODO: this is probably just for testing. Not sure if we want to blow away someone's daily puzzle at midnight?
+export const dailySeedAtom = atomWithStorage("dailySeed", getCurrentDateString())
+
+// whenever the day changes, we need to reset the word and guess and game state
+store.sub(dailySeedAtom, () => {
+    console.log('seed value is changed to', store.get(dailySeedAtom))
+
+    store.set(foundWordsAllLengthsAtom, {} as WordLengthToFoundWordsMap);
+    store.set(isGivenUpAtom, false);
+});
+
+// TODO: this is probably just for testing. Not sure if we want to blow away someone's daily puzzle at midnight, without a refresh?
 // check for date change
 setInterval(() => {
   if (store.get(dailySeedAtom) !== getCurrentDateString()) {
     store.set(dailySeedAtom, getCurrentDateString());
   }
-}, 60000); // every minute
+}, CHECK_FOR_NEW_DAY_INTERVAL);
 
 export const wordsAtom = atom<string[]>([]);
 
@@ -115,19 +115,6 @@ export const guessArrayAtom = atom(
   new Array(store.get(wordLengthAtom)).fill(undefined)
 );
 
-// we want to add the letter to the guess aray in slot that corresponds to the first
-// undefined slot in the combined array
-const addLetterToGuess = (letter: string) => {
-  const index = store.get(fistUndefinedIndexInCombinedAtom);
-  const array = store.get(guessArrayAtom);
-
-  store.set(
-    guessArrayAtom,
-    // @ts-ignore-next-line array.with is fine!
-    array.length === 0 ? [letter] : array.with(index, letter)
-  );
-};
-
 // we maintain two separate sparse arrays for the pattern and the guess, above.
 // this is the combined array
 export const combinedGuessAndPatternArrayAtom = atom((get) => {
@@ -137,25 +124,32 @@ export const combinedGuessAndPatternArrayAtom = atom((get) => {
   return combineArrays(patternArray, guessArray) || [];
 });
 
-export const fistUndefinedIndexInCombinedAtom = atom((get) =>
+// we want to add the letter to the guess aray in slot that corresponds to the first
+// undefined slot in the combined array
+const addLetterToGuess = (letter: string) => {
+  const index = store.get(firstUndefinedIndexInCombinedAtom);
+  const array = store.get(guessArrayAtom);
+
+  store.set(
+    guessArrayAtom,
+    // @ts-ignore-next-line array.with is fine!
+    array.length === 0 ? [letter] : array.with(index, letter)
+  );
+};
+
+export const firstUndefinedIndexInCombinedAtom = atom((get) =>
   getIndexOfFirstUndefined(get(combinedGuessAndPatternArrayAtom))
 );
 
-// The list of words that fit the given pattern,
-// all of which the user is ultimately trying to guess
+// The list of words that fit the given pattern
 export const validWordsAtom = atom(async (get) => {
-  console.log("validWordsAtom get");
   const words = get(unparedValidWordsAtom);
   const wordsInfo = await get(wordsMetadataAtom);
-
-  console.log("brett words is ", words);
 
   const newWords =  words.filter((word) => {
     const wordInfo = wordsInfo?.get(word);
     return wordInfo && wordInfo?.definitions?.length >= 1 && wordInfo.frequency > MINIMUM_NGRAM_SCORE;
   });
-
-  console.log("brett new words is ", newWords);
 
   return newWords;
 });
@@ -164,7 +158,6 @@ export const unparedValidWordsAtom = atom((get) => {
   const words = get(wordsAtom);
   const pattern = get(patternRegexAtom);
 
-  console.log(words.filter((word) => pattern.exec(word)));
   return words.filter((word) => pattern.exec(word));
 });
 
@@ -259,7 +252,7 @@ export const acceptLetterInput = async (keyPossiblyUpperCased: string) => {
   }, 50);
 
   // does this guess finish a word?
-  const index = store.get(fistUndefinedIndexInCombinedAtom);
+  const index = store.get(firstUndefinedIndexInCombinedAtom);
 
   if (index === -1 || index >= store.get(wordLengthAtom)) {
     // give time for animation to complete, and then reset the guess input

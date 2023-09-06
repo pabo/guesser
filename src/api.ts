@@ -48,7 +48,6 @@ export type WordWithMetadata = {
 export const normalizeDataMuseWords = (
   words: DataMuseWord[]
 ): Map<string, WordWithMetadata> => {
-  console.log(words);
   return new Map(
     words
       // .filter((word) => !word.word.includes(" ")) // no multiple words
