@@ -3,6 +3,7 @@ import { atomWithStorage } from "jotai/utils";
 import {
   choosePattern,
   combineArrays,
+  getCurrentDateString,
   getIndexOfFirstUndefined,
   objectOfArraysCopy,
 } from "./utils";
@@ -12,20 +13,38 @@ import { getDataMuseWords } from "./api";
 // and several others. We give the player the pattern so that they can guess all the matching words
 
 export const MAX_NUMBER_OF_VALID_WORDS = 45;
-export const MINIMUM_NGRAM_SCORE = .01; // .01 occurrences per million words (google ngram)
+export const MINIMUM_NGRAM_SCORE = 0.01; // .01 occurrences per million words (google ngram)
 const CHECK_FOR_NEW_DAY_INTERVAL = 60000; // 1 minute
 
 const store = getDefaultStore();
 
-// bump this version to force a localStorage wipe on next client page load
-const CURRENT_VERSION = "1";
+enum StorageKeys {
+  FoundWordsAllLengths = "foundWordsAllLengths",
+  IsGivenUp = "isGivenUp",
+  DailySeed = "dailySeed",
+  Version = "version",
+}
 
-const versionKey = "version";
-const version = localStorage.getItem(versionKey);
+// bump this version to force a localStorage wipe on next client page load
+const CURRENT_VERSION = "2";
+const version = localStorage.getItem(StorageKeys.Version);
 if (!version || version !== CURRENT_VERSION) {
   localStorage.clear();
 }
-localStorage.setItem(versionKey, CURRENT_VERSION);
+localStorage.setItem(StorageKeys.Version, CURRENT_VERSION);
+
+// Reset these keys on dailySeed change
+// https://github.com/pmndrs/jotai/discussions/2121
+const dailyGameStateKeys = [
+  StorageKeys.FoundWordsAllLengths,
+  StorageKeys.IsGivenUp,
+];
+
+const dailySeedFromStorage = localStorage.getItem(StorageKeys.DailySeed);
+if (dailySeedFromStorage !== getCurrentDateString()) {
+  dailyGameStateKeys.forEach((key) => localStorage.removeItem(key));
+  localStorage.setItem(StorageKeys.DailySeed, getCurrentDateString());
+}
 
 export enum WordLength {
   Five = 5,
@@ -55,7 +74,9 @@ export const populateWordList = () => {
   }
 };
 
-export const placeholderWordAtom = atom(get => new Array(get(wordLengthAtom)).fill("x").join(""))
+export const placeholderWordAtom = atom((get) =>
+  new Array(get(wordLengthAtom)).fill("x").join("")
+);
 
 export const changeWordLength = (length: WordLength) => {
   store.set(wordLengthAtom, length);
@@ -66,19 +87,20 @@ export const changeWordLength = (length: WordLength) => {
   store.set(guessArrayAtom, new Array(length).fill(undefined));
 };
 
-export const getCurrentDateString = () => new Date().toDateString();
 export const isDailyModeAtom = atom(true);
-export const isGivenUpAtom = atomWithStorage("isGivenUp", false);
 
-
-export const dailySeedAtom = atomWithStorage("dailySeed", getCurrentDateString())
+export const isGivenUpAtom = atomWithStorage(StorageKeys.IsGivenUp, false);
+export const dailySeedAtom = atomWithStorage(
+  StorageKeys.DailySeed,
+  getCurrentDateString()
+);
 
 // whenever the day changes, we need to reset the word and guess and game state
 store.sub(dailySeedAtom, () => {
-    console.log('seed value is changed to', store.get(dailySeedAtom))
+  console.log("seed value is changed to", store.get(dailySeedAtom));
 
-    store.set(foundWordsAllLengthsAtom, {} as WordLengthToFoundWordsMap);
-    store.set(isGivenUpAtom, false);
+  store.set(foundWordsAllLengthsAtom, {} as WordLengthToFoundWordsMap);
+  store.set(isGivenUpAtom, false);
 });
 
 // TODO: this is probably just for testing. Not sure if we want to blow away someone's daily puzzle at midnight, without a refresh?
@@ -146,9 +168,13 @@ export const validWordsAtom = atom(async (get) => {
   const words = get(unparedValidWordsAtom);
   const wordsInfo = await get(wordsMetadataAtom);
 
-  const newWords =  words.filter((word) => {
+  const newWords = words.filter((word) => {
     const wordInfo = wordsInfo?.get(word);
-    return wordInfo && wordInfo?.definitions?.length >= 1 && wordInfo.frequency > MINIMUM_NGRAM_SCORE;
+    return (
+      wordInfo &&
+      wordInfo?.definitions?.length >= 1 &&
+      wordInfo.frequency > MINIMUM_NGRAM_SCORE
+    );
   });
 
   return newWords;
@@ -162,7 +188,7 @@ export const unparedValidWordsAtom = atom((get) => {
 });
 
 export const foundWordsAllLengthsAtom = atomWithStorage(
-  "foundWordsAllLengths",
+  StorageKeys.FoundWordsAllLengths,
   {} as WordLengthToFoundWordsMap
 );
 
@@ -275,7 +301,7 @@ export const acceptLetterInput = async (keyPossiblyUpperCased: string) => {
     }
 
     // is it valid?
-    const validWords =await store.get(validWordsAtom);
+    const validWords = await store.get(validWordsAtom);
 
     if (validWords.includes(potentialWord)) {
       store.set(guessIsGoodAtom, true);

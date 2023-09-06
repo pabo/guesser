@@ -78,3 +78,5 @@ export const objectOfArraysCopy = (oaa: WordLengthToFoundWordsMap) => {
 
   return newOaa;
 };
+
+export const getCurrentDateString = () => new Date().toDateString();

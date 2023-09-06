@@ -16,20 +16,10 @@ export const App = () => {
   }, []);
 
   return (
-    //TODO: blahhhhhhhhhhhhhhhhhhh
-    //TODO: blahhhhhhhhhhhhhhhhhhh
-    //TODO: blahhhhhhhhhhhhhhhhhhh
-    //TODO: blahhhhhhhhhhhhhhhhhhh
-    //TODO: blahhhhhhhhhhhhhhhhhhh
-    // suspense here means that every action that touches an async atom will cause a flash while we re-render?
-    //TODO: blahhhhhhhhhhhhhhhhhhh
-    //TODO: blahhhhhhhhhhhhhhhhhhh
-    //TODO: blahhhhhhhhhhhhhhhhhhh
-    //TODO: blahhhhhhhhhhhhhhhhhhh
-    //TODO: blahhhhhhhhhhhhhhhhhhh
-    //TODO: blahhhhhhhhhhhhhhhhhhh
-    //https://github.com/pmndrs/jotai/discussions/2003
+    // suspense here means that every action that touches an async atom will cause a flash while we re-render? Unless we do delay 0 or another workaround
+
     // useAtom(blahAtom, { delay: 0})
+    //https://github.com/pmndrs/jotai/discussions/2003
 
     <Suspense>
       <div
