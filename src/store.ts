@@ -56,6 +56,8 @@ export const populateWordList = () => {
   }
 };
 
+export const placeholderWordAtom = atom(get => new Array(get(wordLengthAtom)).fill("x").join(""))
+
 export const changeWordLength = (length: WordLength) => {
   store.set(wordLengthAtom, length);
 
@@ -67,6 +69,7 @@ export const changeWordLength = (length: WordLength) => {
 
 export const getCurrentDateString = () => new Date().toDateString();
 export const isDailyModeAtom = atom(true);
+export const isGivenUpAtom = atomWithStorage("isGivenUp", false);
 
 export const dailySeedAtom = atom(
   getCurrentDateString(),
@@ -74,6 +77,7 @@ export const dailySeedAtom = atom(
     // whenever we set this, we want to do a bunch of shit
     set(dailySeedAtom, newValue);
     set(foundWordsAllLengthsAtom, {} as WordLengthToFoundWordsMap);
+    set(isGivenUpAtom, false);
   }
 );
 
@@ -195,10 +199,11 @@ export const foundWordsAtom = atom(
 );
 
 export const gameOverAtom = atom(async (get) => {
+  const isGivenUp = get(isGivenUpAtom);
   const foundWords = get(foundWordsAtom);
   const validWords = await get(validWordsAtom);
 
-  return foundWords.length === validWords.length;
+  return isGivenUp || foundWords.length === validWords.length;
 });
 
 export const guessIsGoodAtom = atom(false);

@@ -13,8 +13,8 @@ export const WordInfo: React.FC<WordInfoProps> = ({ word }) => {
   return (
     <div className={styles.wordInfo}>
       <div>{wordInfo?.definitions[0]}</div>
-      <div>parts of speech: {wordInfo?.partsOfSpeech}</div>
-      <div>frequency: {wordInfo?.frequency}</div>
+      {/* <div>parts of speech: {wordInfo?.partsOfSpeech}</div> */}
+      {/* <div>frequency: {wordInfo?.frequency}</div> */}
     </div>
   );
 };

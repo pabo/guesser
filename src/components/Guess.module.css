@@ -1,6 +1,8 @@
 .guess {
   display: flex;
   justify-content: initial;
+  height: 2em;
+  align-items: center;
 
   &.good-guess {
     animation: good-guess 0.3s;

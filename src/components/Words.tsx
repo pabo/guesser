@@ -4,7 +4,8 @@ import {
   combinedGuessAndPatternArrayAtom,
   foundWordsAtom,
   guessIsRepeatAtom,
-  wordLengthAtom,
+  isGivenUpAtom,
+  placeholderWordAtom,
 } from "../store";
 import styles from "./Words.module.css";
 import { WordInfo } from "./WordInfo";
@@ -29,15 +30,15 @@ type WordProps = {
 };
 
 export const Word: React.FC<WordProps> = ({ word }) => {
+  const [placeholder] = useAtom(placeholderWordAtom);
+  const [isGivenUp] = useAtom(isGivenUpAtom);
   const [foundWords] = useAtom(foundWordsAtom);
   const [guessIsRepeat, setGuessIsRepeat] = useAtom(guessIsRepeatAtom);
   const [combinedGuessAndPattern] = useAtom(combinedGuessAndPatternArrayAtom);
-  const [wordLength] = useAtom(wordLengthAtom);
 
   const [showWordInfo, setShowWordInfo] = useState(false);
 
   const isFound = foundWords.includes(word);
-  const placeholder = new Array(wordLength).fill("x").join("");
 
   return (
     <div
@@ -47,12 +48,14 @@ export const Word: React.FC<WordProps> = ({ word }) => {
         setGuessIsRepeat(false);
       }}
       className={classNames(styles.word, {
-        [styles.faded]: !isFound,
+        [styles.notFound]: !isFound,
+        [styles.isGivenUp]: isGivenUp,
         [styles.repeat]:
           guessIsRepeat && word === combinedGuessAndPattern.join(""),
       })}
     >
-      {isFound ? word : placeholder} {showWordInfo && <WordInfo word={word} />}
+      {isFound || isGivenUp ? word : placeholder}{" "}
+      {showWordInfo && <WordInfo word={word} />}
     </div>
   );
 };

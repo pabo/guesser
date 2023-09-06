@@ -3,23 +3,30 @@ import githubImgUrl from "../assets/github-mark.png";
 import {
   WordLength,
   changeWordLength,
-  isDailyModeAtom,
+  // isDailyModeAtom,
+  isGivenUpAtom,
   wordLengthAtom,
 } from "../store";
 import { useAtom } from "jotai";
 import styles from "./Links.module.css";
 
 export const Links = () => {
-  const [isDailyMode, setIsDailyMode] = useAtom(isDailyModeAtom);
+  // const [isDailyMode, setIsDailyMode] = useAtom(isDailyModeAtom);
+  const [isGivenUp, setIsGivenUp] = useAtom(isGivenUpAtom);
   const [wordLength] = useAtom(wordLengthAtom);
 
   return (
     <div className={styles.links}>
       <Button
+        text="Give up"
+        isSelected={isGivenUp}
+        clickHandler={() => setIsGivenUp(true)}
+      />
+      {/* <Button
         text="Daily"
         isSelected={isDailyMode}
         clickHandler={() => setIsDailyMode(true)}
-      />
+      /> */}
       {/* <Button
         text="Random"
         isSelected={!isDailyMode}

@@ -60,7 +60,7 @@ export const normalizeDataMuseWords = (
         {
           word: word.word,
           score: word.score,
-          definitions: word.defs,
+          definitions: word.defs?.map(def => def.replaceAll(word.word, "_____")),
           partsOfSpeech: word.tags
             .map((t) => partsOfSpeech[t])
             .filter((t) => t),

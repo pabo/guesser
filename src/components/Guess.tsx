@@ -6,6 +6,7 @@ import {
   patternArrayAtom,
   gameOverAtom,
   fistUndefinedIndexInCombinedAtom,
+  isGivenUpAtom,
 } from "../store";
 import classNames from "classnames";
 import styles from "./Guess.module.css";
@@ -18,6 +19,7 @@ export const Guess = () => {
     delay: 0,
   });
   const [gameOver] = useAtom(gameOverAtom, { delay: 0 });
+  const [isGivenUp] = useAtom(isGivenUpAtom);
 
   return (
     <h2
@@ -32,7 +34,8 @@ export const Guess = () => {
         });
       }}
     >
-      {gameOver && "You win!"}
+      {gameOver && isGivenUp && "You gave up!"}
+      {gameOver && !isGivenUp && "You win!"}
       {!gameOver &&
         combinedGuessAndPattern.map(
           (letter: string | undefined, index: number) => {
