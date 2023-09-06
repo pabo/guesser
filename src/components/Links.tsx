@@ -6,7 +6,7 @@ import {
   // isDailyModeAtom,
   isGivenUpAtom,
   wordLengthAtom,
-} from "../store";
+} from "../stores/main.store";
 import { useAtom } from "jotai";
 import styles from "./Links.module.css";
 

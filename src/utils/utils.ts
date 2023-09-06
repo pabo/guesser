@@ -1,5 +1,5 @@
 import seedrandom from "seedrandom";
-import { WordLengthToFoundWordsMap, WordLength } from "./store";
+import { WordLengthToFoundWordsMap, WordLength } from "../stores/main.store";
 
 // a place for functions that don't need atoms, or operate only on arguments
 
@@ -33,7 +33,7 @@ export const choosePattern = (
     let candidate;
 
     do {
-      // -1/+1 doesnt allow the first letter to be fixed which is a workaround for the bug
+      // -1/+1 doesnt allow the first letter to be fixed which is a workaround for a bug
       candidate = Math.floor(rng() * (word.length - 1)) + 1;
     } while (candidate === undefined || indexesToReveal.includes(candidate));
 

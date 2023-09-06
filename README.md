@@ -8,14 +8,17 @@ You can play here: https://pabo.github.io/guesser/
 
 ## TODOs
 
-- daily vs random
 - repeat bug
-- score?
 
 ## Ideas
 
+- daily vs random
+- score?
+- backend to lessen API calls, collect stats
+
 ## Changelog
 
+- stores cleanup
 - "give up" / reveal
 - definitions
 - pare down words according to ngrams score

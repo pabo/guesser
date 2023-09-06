@@ -6,7 +6,7 @@ import {
   guessIsRepeatAtom,
   isGivenUpAtom,
   placeholderWordAtom,
-} from "../store";
+} from "../stores/main.store";
 import styles from "./Words.module.css";
 import { WordInfo } from "./WordInfo";
 import { useState } from "react";

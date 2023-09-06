@@ -1,6 +1,6 @@
 import { useAtom } from "jotai";
 import styles from "./WordInfo.module.css";
-import { wordsMetadataAtom } from "../../store";
+import { wordsMetadataAtom } from "../stores/main.store";
 
 export interface WordInfoProps {
   word: string;

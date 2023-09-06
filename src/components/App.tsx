@@ -1,6 +1,7 @@
 import { Suspense, startTransition, useEffect, useRef } from "react";
 import { useAtom } from "jotai";
-import { validWordsAtom, acceptLetterInput } from "../store";
+import { validWordsAtom } from "../stores/main.store";
+import { acceptLetterInput } from "../stores/keyboard.store";
 import { Guess } from "./Guess";
 import { Words } from "./Words";
 import { Keyboard } from "./Keyboard";
@@ -17,9 +18,8 @@ export const App = () => {
 
   return (
     // suspense here means that every action that touches an async atom will cause a flash while we re-render? Unless we do delay 0 or another workaround
-
     // useAtom(blahAtom, { delay: 0})
-    //https://github.com/pmndrs/jotai/discussions/2003
+    // https://github.com/pmndrs/jotai/discussions/2003
 
     <Suspense>
       <div

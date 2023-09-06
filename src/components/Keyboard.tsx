@@ -2,7 +2,8 @@ import { useCallback } from "react";
 import { useAtom } from "jotai";
 import classNames from "classnames";
 import throttle from "lodash/throttle";
-import { acceptLetterInput, selectedKeyAtom } from "../store";
+import { selectedKeyAtom } from "../stores/main.store";
+import { acceptLetterInput } from "../stores/keyboard.store";
 import styles from "./Keyboard.module.css";
 
 const keysTopRow = "QWERTYUIOP".split("");

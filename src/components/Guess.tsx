@@ -7,7 +7,7 @@ import {
   gameOverAtom,
   firstUndefinedIndexInCombinedAtom,
   isGivenUpAtom,
-} from "../store";
+} from "../stores/main.store";
 import classNames from "classnames";
 import styles from "./Guess.module.css";
 import { startTransition } from "react";
