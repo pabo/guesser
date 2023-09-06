@@ -6,18 +6,20 @@ import {
   getIndexOfFirstUndefined,
   objectOfArraysCopy,
 } from "./utils";
+import { getDataMuseWords } from "./api";
 
 // We pick one target word at random, then create a pattern that matches the target word
 // and several others. We give the player the pattern so that they can guess all the matching words
 
 export const MAX_NUMBER_OF_VALID_WORDS = 45;
+export const MINIMUM_NGRAM_SCORE = .01;
 
 const store = getDefaultStore();
 
 // bump this version to force a localStorage wipe on next client page load
 const CURRENT_VERSION = "1";
 
-const versionKey = "version"
+const versionKey = "version";
 const version = localStorage.getItem(versionKey);
 if (!version || version !== CURRENT_VERSION) {
   localStorage.clear();
@@ -37,11 +39,11 @@ export type WordLengthToFoundWordsMap = {
 export const wordLengthAtom = atom(WordLength.Five);
 // export const wordLengthAtom = atomWithStorage("wordLength", WordLength.Five);
 // TODO: jotai bug? immediately, this is the default value, instead of the stored value
-console.log("length is", store.get(wordLengthAtom))
+console.log("length is", store.get(wordLengthAtom));
 
 export const populateWordList = () => {
   const length = store.get(wordLengthAtom);
-  console.log("populating, ", length)
+  console.log("populating, ", length);
 
   if (length === WordLength.Five) {
     import("../wordlists/wordle").then(({ words5 }) => {
@@ -52,9 +54,9 @@ export const populateWordList = () => {
       store.set(wordsAtom, words7);
     });
   }
-}
+};
 
-export const changeWordLength = async (length: WordLength) => {
+export const changeWordLength = (length: WordLength) => {
   store.set(wordLengthAtom, length);
 
   populateWordList();
@@ -81,7 +83,7 @@ setInterval(() => {
   if (store.get(dailySeedAtom) !== getCurrentDateString()) {
     store.set(dailySeedAtom, getCurrentDateString());
   }
-}, 60000);
+}, 60000); // every minute
 
 export const wordsAtom = atom<string[]>([]);
 
@@ -97,6 +99,11 @@ export const patternArrayAtom = atom((get) => {
   return get(patternRegexAtom)
     .source.split("")
     .map((x) => (x === "." ? undefined : x));
+});
+
+export const wordsMetadataAtom = atom(async (get) => {
+  const pattern = get(patternArrayAtom);
+  return await getDataMuseWords(pattern);
 });
 
 // TODO: BUG can I initialize this with leading nulls if they should be there
@@ -132,10 +139,28 @@ export const fistUndefinedIndexInCombinedAtom = atom((get) =>
 
 // The list of words that fit the given pattern,
 // all of which the user is ultimately trying to guess
-export const validWordsAtom = atom((get) => {
+export const validWordsAtom = atom(async (get) => {
+  console.log("validWordsAtom get");
+  const words = get(unparedValidWordsAtom);
+  const wordsInfo = await get(wordsMetadataAtom);
+
+  console.log("brett words is ", words);
+
+  const newWords =  words.filter((word) => {
+    const wordInfo = wordsInfo?.get(word);
+    return wordInfo && wordInfo?.definitions?.length >= 1 && wordInfo.frequency > MINIMUM_NGRAM_SCORE;
+  });
+
+  console.log("brett new words is ", newWords);
+
+  return newWords;
+});
+
+export const unparedValidWordsAtom = atom((get) => {
   const words = get(wordsAtom);
   const pattern = get(patternRegexAtom);
 
+  console.log(words.filter((word) => pattern.exec(word)));
   return words.filter((word) => pattern.exec(word));
 });
 
@@ -169,9 +194,9 @@ export const foundWordsAtom = atom(
   }
 );
 
-export const gameOverAtom = atom((get) => {
+export const gameOverAtom = atom(async (get) => {
   const foundWords = get(foundWordsAtom);
-  const validWords = get(validWordsAtom);
+  const validWords = await get(validWordsAtom);
 
   return foundWords.length === validWords.length;
 });
@@ -193,7 +218,7 @@ const allowedKeys = [
 ];
 
 // accepts single letter keys, 'Backspace', 'Del, and 'Enter'
-export const acceptLetterInput = (keyPossiblyUpperCased: string) => {
+export const acceptLetterInput = async (keyPossiblyUpperCased: string) => {
   const key = keyPossiblyUpperCased.toLowerCase();
 
   // TODO: the whole animation thing is janky. timings are coupled, states are messy
@@ -252,7 +277,9 @@ export const acceptLetterInput = (keyPossiblyUpperCased: string) => {
     }
 
     // is it valid?
-    if (store.get(validWordsAtom).includes(potentialWord)) {
+    const validWords =await store.get(validWordsAtom);
+
+    if (validWords.includes(potentialWord)) {
       store.set(guessIsGoodAtom, true);
 
       // remember, this is not a true 'set'. It adds to the foundWords array.
@@ -268,6 +295,6 @@ export const acceptLetterInput = (keyPossiblyUpperCased: string) => {
 
 export const init = () => {
   populateWordList();
-}
+};
 
 init();

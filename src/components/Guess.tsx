@@ -9,12 +9,15 @@ import {
 } from "../store";
 import classNames from "classnames";
 import styles from "./Guess.module.css";
+import { startTransition } from "react";
 
 export const Guess = () => {
-  const [guessIsGood, setGuessIsGood] = useAtom(guessIsGoodAtom);
-  const [guessIsBad, setGuessIsBad] = useAtom(guessIsBadAtom);
-  const [combinedGuessAndPattern] = useAtom(combinedGuessAndPatternArrayAtom);
-  const [gameOver] = useAtom(gameOverAtom);
+  const [guessIsGood, setGuessIsGood] = useAtom(guessIsGoodAtom, { delay: 0 });
+  const [guessIsBad, setGuessIsBad] = useAtom(guessIsBadAtom, { delay: 0 });
+  const [combinedGuessAndPattern] = useAtom(combinedGuessAndPatternArrayAtom, {
+    delay: 0,
+  });
+  const [gameOver] = useAtom(gameOverAtom, { delay: 0 });
 
   return (
     <h2
@@ -23,8 +26,10 @@ export const Guess = () => {
         [styles.badGuess]: guessIsBad,
       })}
       onAnimationEnd={() => {
-        setGuessIsGood(false);
-        setGuessIsBad(false);
+        startTransition(() => {
+          setGuessIsGood(false);
+          setGuessIsBad(false);
+        });
       }}
     >
       {gameOver && "You win!"}

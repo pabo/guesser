@@ -5,13 +5,15 @@
 }
 
 .word {
+  position: relative;
+
   font-weight: bold;
   margin: 2px;
   width: 100px;
   text-align: center;
 
   &.faded {
-    opacity: 0.15;
+    color: #eeeeee;
   }
 
   &.repeat {

@@ -7,6 +7,8 @@ import {
   wordLengthAtom,
 } from "../store";
 import styles from "./Words.module.css";
+import { WordInfo } from "./WordInfo";
+import { useState } from "react";
 
 type WordsProps = {
   words: string[];
@@ -31,23 +33,26 @@ export const Word: React.FC<WordProps> = ({ word }) => {
   const [guessIsRepeat, setGuessIsRepeat] = useAtom(guessIsRepeatAtom);
   const [combinedGuessAndPattern] = useAtom(combinedGuessAndPatternArrayAtom);
   const [wordLength] = useAtom(wordLengthAtom);
-  const isFound = foundWords.includes(word);
 
+  const [showWordInfo, setShowWordInfo] = useState(false);
+
+  const isFound = foundWords.includes(word);
   const placeholder = new Array(wordLength).fill("x").join("");
 
   return (
     <div
+      onMouseEnter={() => setShowWordInfo(true)}
+      onMouseLeave={() => setShowWordInfo(false)}
       onAnimationEnd={() => {
         setGuessIsRepeat(false);
       }}
-      className={classNames({
-        [styles.word]: true,
+      className={classNames(styles.word, {
         [styles.faded]: !isFound,
         [styles.repeat]:
           guessIsRepeat && word === combinedGuessAndPattern.join(""),
       })}
     >
-      {isFound ? word : placeholder}{" "}
+      {isFound ? word : placeholder} {showWordInfo && <WordInfo word={word} />}
     </div>
   );
 };

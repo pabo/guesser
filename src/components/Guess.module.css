@@ -18,7 +18,7 @@
 .guess-letter {
   padding-left: 10px;
   padding-right: 10px;
-  border: 2px solid rgb(150, 150, 150);
+  border: 2px solid black;
   margin: 2px;
 }
 
@@ -28,10 +28,6 @@
 
 .guess-fixed-letter {
   background-color: rgb(150, 175, 150);
-  border-color: black;
-}
-
-.guess-next-letter {
   border-color: black;
 }
 
