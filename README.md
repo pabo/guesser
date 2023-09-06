@@ -11,15 +11,14 @@ You can play here: https://pabo.github.io/guesser/
 - daily vs random
 - repeat bug
 - score?
-- hints or definitions?
 
 ## Ideas
 
-- mouse over xxxxx to get crossword clues of missing words
-- pare down list of words according to onelook commonness score
-
 ## Changelog
 
+- "give up" / reveal
+- definitions
+- pare down words according to ngrams score
 - CSS modules, so much clean
 - more cleaning
 - jotai store ftw, cleaned up logic
