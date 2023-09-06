@@ -252,7 +252,8 @@ export const acceptLetterInput = async (keyPossiblyUpperCased: string) => {
     store.get(guessIsBadAtom) ||
     store.get(guessIsGoodAtom) ||
     !store.get(acceptingInputAtom) ||
-    !allowedKeys.includes(key)
+    !allowedKeys.includes(key) ||
+    await store.get(gameOverAtom)
   ) {
     return;
   }
