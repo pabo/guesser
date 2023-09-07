@@ -29,7 +29,7 @@
 }
 
 .guess-fixed-letter {
-  background-color: rgb(150, 175, 150);
+  background-color: var(--color-green);
   border-color: black;
 }
 

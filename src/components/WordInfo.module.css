@@ -1,19 +1,7 @@
 .word-info {
-  position: absolute;
-  top: 100%;
-  background-color: white;
-  border: 1px solid black;
-  z-index: 2;
   color: black;
-  text-align: left;
 
-  & div {
-    width: 300px;
-    margin: 1em;
-  }
-
-  /* check if parent is last child*/
-  :nth-last-child(-n + 3) > & {
-    right: 0;
+  &.is-found {
+    color: #cccccc;
   }
 }

@@ -1,3 +1,7 @@
+:root {
+  --color-green: rgb(150, 175, 150);
+}
+
 .page {
   height: 100%;
   display: flex;

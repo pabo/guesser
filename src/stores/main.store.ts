@@ -190,6 +190,13 @@ export const foundWordsAtom = atom(
   }
 );
 
+export const unfoundWordsAtom = atom(async (get) => {
+  const foundWords = get(foundWordsAtom);
+  const validWords = await get(validWordsAtom);
+
+  return validWords.filter((word) => !foundWords.includes(word));
+});
+
 export const gameOverAtom = atom(async (get) => {
   const isGivenUp = get(isGivenUpAtom);
   const foundWords = get(foundWordsAtom);

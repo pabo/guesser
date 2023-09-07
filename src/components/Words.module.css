@@ -1,16 +1,16 @@
 .words {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
 }
 
 .word {
-  position: relative;
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
 
   font-weight: bold;
   margin: 2px;
-  width: 100px;
-  text-align: center;
+  text-align: left;
+
+  color: var(--color-green);
 
   &.not-found {
     color: #eeeeee;

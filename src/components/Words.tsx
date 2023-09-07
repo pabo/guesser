@@ -6,19 +6,23 @@ import {
   guessIsRepeatAtom,
   isGivenUpAtom,
   placeholderWordAtom,
+  unfoundWordsAtom,
+  validWordsAtom,
 } from "../stores/main.store";
 import styles from "./Words.module.css";
 import { WordInfo } from "./WordInfo";
 import { useState } from "react";
 
-type WordsProps = {
-  words: string[];
-};
+export const Words = () => {
+  const [foundWords] = useAtom(foundWordsAtom, { delay: 0 });
+  const [unFoundWords] = useAtom(unfoundWordsAtom, { delay: 0 });
 
-export const Words: React.FC<WordsProps> = ({ words }) => {
   return (
     <div className={styles.words}>
-      {words.map((word, index) => (
+      {unFoundWords.map((word, index) => (
+        <Word key={index} word={word} />
+      ))}
+      {foundWords.map((word, index) => (
         <Word key={index} word={word} />
       ))}
     </div>
@@ -54,8 +58,8 @@ export const Word: React.FC<WordProps> = ({ word }) => {
           guessIsRepeat && word === combinedGuessAndPattern.join(""),
       })}
     >
-      {isFound || isGivenUp ? word : placeholder}{" "}
-      {showWordInfo && <WordInfo word={word} />}
+      <div>{isFound || isGivenUp ? word : placeholder} </div>
+      <WordInfo word={word} isFound={isFound} />
     </div>
   );
 };
