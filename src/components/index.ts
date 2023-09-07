@@ -1,1 +1,0 @@
-export {WordInfo} from './WordInfo';
