@@ -7,11 +7,9 @@ import {
   isGivenUpAtom,
   placeholderWordAtom,
   unfoundWordsAtom,
-  validWordsAtom,
 } from "../stores/main.store";
 import styles from "./Words.module.css";
 import { WordInfo } from "./WordInfo";
-import { useState } from "react";
 
 export const Words = () => {
   const [foundWords] = useAtom(foundWordsAtom, { delay: 0 });
@@ -40,14 +38,10 @@ export const Word: React.FC<WordProps> = ({ word }) => {
   const [guessIsRepeat, setGuessIsRepeat] = useAtom(guessIsRepeatAtom);
   const [combinedGuessAndPattern] = useAtom(combinedGuessAndPatternArrayAtom);
 
-  const [showWordInfo, setShowWordInfo] = useState(false);
-
   const isFound = foundWords.includes(word);
 
   return (
     <div
-      onMouseEnter={() => setShowWordInfo(true)}
-      onMouseLeave={() => setShowWordInfo(false)}
       onAnimationEnd={() => {
         setGuessIsRepeat(false);
       }}
