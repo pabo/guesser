@@ -80,3 +80,16 @@ export const objectOfArraysCopy = (oaa: WordLengthToFoundWordsMap) => {
 };
 
 export const getCurrentDateString = () => new Date().toDateString();
+export const getDailyPuzzleNumber = () =>
+  Math.floor(
+    (new Date().getTime() - new Date("2023-09-01").getTime()) /
+      (1000 * 60 * 60 * 24)
+  );
+
+// const letterFrom = "abcdefghijklmnopqrstuvwxyz".split("");
+// const letterTo = "🅰🅱🅲🅳🅴🅵🅶🅷🅸🅹🅺🅻🅼🅽🅾🅿🆀🆁🆂🆃🆄🆅🆆🆇🆈🆉".split("");
+// const letterTo = "🅐🅑🅒🅓🅔🅕🅖🅗🅘🅙🅚🅛🅜🅝🅞🅟🅠🅡🅢🅣🅤🅥🅦🅧🅨🅩".split("");
+// const letterTo = "🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉".split("");
+export const convertTextToEmoji = (text: (string | undefined)[]) => {
+  return text.map((c) => (c === undefined ? "⬜" : c.toUpperCase())).join(" ");
+};

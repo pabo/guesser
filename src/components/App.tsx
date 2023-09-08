@@ -28,12 +28,15 @@ export const App = () => {
           });
         }}
       >
-        <Links />
         <div className={styles.main}>
-          <div>Find as many words as you can that fit the pattern. Hi mom!</div>
-          <Guess />
+          <div className={styles.top}>
+            <Links />
+            <div>
+              Find as many words as you can that fit the pattern. Hi mom!
+            </div>
+            <Guess />
+          </div>
           <Words />
-          {/* <WordsMetadata /> */}
           <Keyboard />
         </div>
       </div>

@@ -20,7 +20,7 @@ export const Words = () => {
       {unFoundWords.map((word, index) => (
         <Word key={index} word={word} />
       ))}
-      {foundWords.map((word, index) => (
+      {foundWords.toReversed().map((word, index) => (
         <Word key={index} word={word} />
       ))}
     </div>

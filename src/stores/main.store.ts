@@ -3,7 +3,9 @@ import { atomWithStorage } from "jotai/utils";
 import {
   choosePattern,
   combineArrays,
+  convertTextToEmoji,
   getCurrentDateString,
+  getDailyPuzzleNumber,
   getIndexOfFirstUndefined,
   objectOfArraysCopy,
 } from "../utils/utils";
@@ -203,6 +205,23 @@ export const gameOverAtom = atom(async (get) => {
   const validWords = await get(validWordsAtom);
 
   return isGivenUp || foundWords.length === validWords.length;
+});
+
+export const scoreTextAtom = atom(async (get) => {
+  const numFound = get(foundWordsAtom).length;
+  const numValid = (await get(validWordsAtom)).length;
+
+  return `${numFound} / ${numValid}`;
+});
+
+export const sharingTextAtom = atom(async (get) => {
+  const scoreText = await get(scoreTextAtom);
+  const pattern = convertTextToEmoji(await get(patternArrayAtom));
+  const dailyPuzzleNumber = getDailyPuzzleNumber();
+
+  return `Guesser #${dailyPuzzleNumber} ${scoreText}
+  \n\n${pattern}
+  \n\nhttps://pabo.github.io/guesser/`;
 });
 
 export const guessIsGoodAtom = atom(false);

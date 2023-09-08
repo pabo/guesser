@@ -33,6 +33,14 @@
   border-color: black;
 }
 
+.game-over {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+}
+
 @keyframes repeat-guess {
   0% {
     transform: translateX(0px);

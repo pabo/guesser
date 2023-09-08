@@ -60,7 +60,7 @@ type ButtonProps = {
 const Button: React.FC<ButtonProps> = ({ text, isSelected, clickHandler }) => {
   return (
     <button
-      className={classNames(styles.button, { [styles.selected]: isSelected })}
+      className={classNames({ selected: isSelected })}
       onClick={clickHandler}
     >
       {text}

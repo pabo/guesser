@@ -6,7 +6,8 @@ import {
   patternArrayAtom,
   gameOverAtom,
   firstUndefinedIndexInCombinedAtom,
-  isGivenUpAtom,
+  sharingTextAtom,
+  scoreTextAtom,
 } from "../stores/main.store";
 import classNames from "classnames";
 import styles from "./Guess.module.css";
@@ -19,7 +20,7 @@ export const Guess = () => {
     delay: 0,
   });
   const [gameOver] = useAtom(gameOverAtom, { delay: 0 });
-  const [isGivenUp] = useAtom(isGivenUpAtom);
+  const [scoreText] = useAtom(scoreTextAtom, { delay: 0 });
 
   return (
     <h2
@@ -34,8 +35,12 @@ export const Guess = () => {
         });
       }}
     >
-      {gameOver && isGivenUp && "You gave up!"}
-      {gameOver && !isGivenUp && "You win!"}
+      {gameOver && (
+        <div className={styles.gameOver}>
+          <div>You got {scoreText}</div>
+          <ShareButton />
+        </div>
+      )}
       {!gameOver &&
         combinedGuessAndPattern.map(
           (letter: string | undefined, index: number) => {
@@ -44,6 +49,20 @@ export const Guess = () => {
         )}
     </h2>
   );
+};
+
+const ShareButton = () => {
+  const [text] = useAtom(sharingTextAtom);
+
+  const handleShare = () => {
+    if (navigator.canShare?.({ text })) {
+      navigator.share({ text });
+    } else {
+      navigator.clipboard.writeText(text);
+    }
+  };
+
+  return <button onClick={handleShare}>Share</button>;
 };
 
 type GuessLetterProps = {

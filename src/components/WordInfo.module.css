@@ -1,7 +1,14 @@
 .word-info {
-  color: black;
+  color: #cccccc;
 
   &.is-found {
-    color: #cccccc;
+    color: #888888;
+    @media (prefers-color-scheme: light) {
+      color: #cccccc;
+    }
+  }
+
+  @media (prefers-color-scheme: light) {
+    color: black;
   }
 }
